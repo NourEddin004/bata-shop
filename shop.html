@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop — Bata Shop</title>
+  <meta name="description" content="Bata Shop (بطة شوب) — modest sets, coats and abayas made for hijabi women. Two branches in Zarqa and Amman, delivery across Jordan.">
+  <meta name="theme-color" content="#fbf8f2">
+  <link rel="icon" href="assets/img/logo-instagram.jpg">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Montserrat:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="shop">
+
+  <main id="main">
+    <header class="b-page-head">
+      <p class="b-eyebrow">Bata Shop</p>
+      <h1 class="b-title" data-shop-title>The collection</h1>
+      <p class="b-page-head__lead">Sets, coats and abayas cut long and loose. New pieces every week.</p>
+    </header>
+    <div class="b-container">
+      <div class="b-tabs" data-tabs role="group" aria-label="Category"></div>
+      <div class="b-toolbar">
+        <div class="b-toolbar__shades" data-shades role="group" aria-label="Colour"></div>
+        <form class="b-toolbar__controls" data-q-form role="search">
+          <label class="b-sr" for="shop-q">Search</label>
+          <input class="b-input b-input--pill" id="shop-q" type="search" placeholder="Search" data-q style="width:12rem">
+          <label class="b-sr" for="shop-sort">Sort</label>
+          <select class="b-select b-select--pill" id="shop-sort" data-sort style="width:auto"></select>
+        </form>
+      </div>
+      <p class="b-toolbar__count" data-count style="margin:-1.5rem 0 1.5rem"></p>
+      <div class="b-grid" data-grid></div>
+    </div>
+  </main>
+
+  <script src="assets/js/catalog.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
