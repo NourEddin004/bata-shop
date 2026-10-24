@@ -47,8 +47,9 @@
   --color-shade-taupe: #6f6459;
 
   /* ---------- Typography ---------- */
-  --font-body: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bodoni Moda", "Didot", Georgia, serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-logo: "Bodoni Moda", "Didot", Georgia, serif; /* logo lettering only */
   --font-script: "Allura", "Snell Roundhand", cursive;
   --font-arabic: "Tajawal", "Geeza Pro", sans-serif;
 
