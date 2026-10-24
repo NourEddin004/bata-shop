@@ -188,19 +188,9 @@
   }
 
   function renderChrome() {
-    const announce = [
-      `Free delivery across Jordan on orders over ${money(S.freeDeliveryFrom)}`,
-      "Cash on delivery",
-      "Two branches · Zarqa & Amman",
-      "Exchange within 3 days",
-      S.taglineAr
-    ];
-    const announceHtml = announce.map((t) => `<span class="b-announce__item">${esc(t)}</span>`).join("");
-
     const header = document.createElement("div");
     header.innerHTML = `
       <a class="b-skip" href="#main">Skip to content</a>
-      <div class="b-announce" aria-label="Store news"><div class="b-announce__track">${announceHtml}${announceHtml}</div></div>
       <header class="b-header">
         <div class="b-header__bar">
           <button class="b-icon-btn b-header__menu" type="button" data-open="menu" aria-label="Open menu">${icon("menu")}</button>
@@ -294,7 +284,6 @@
       <div class="b-modal" id="size-guide" role="dialog" aria-modal="true" aria-labelledby="size-guide-title" aria-hidden="true">
         <div class="b-modal__panel">
           <button class="b-icon-btn b-modal__close" type="button" data-close aria-label="Close size guide">${icon("close")}</button>
-          <p class="b-eyebrow">Size guide</p>
           <h2 class="b-title" id="size-guide-title">Find your size</h2>
           <p class="b-page-head__lead" style="margin-block: 0.75rem 1.25rem">Our cuts are loose. If you're between two sizes, take the smaller one. Measurements in cm.</p>
           <table class="b-table">
@@ -501,7 +490,6 @@
         <div class="b-card__info">
           <div>
             <a class="b-card__name" href="${productUrl(p)}">${esc(p.name)}</a>
-            <p class="b-card__ar">${esc(p.nameAr)}</p>
           </div>
           <span class="b-card__price">${money(p.price)}</span>
         </div>
@@ -540,7 +528,6 @@
       .map((g) => `<a href="${S.instagram}" target="_blank" rel="noopener" aria-label="See this look on Instagram"><img src="assets/img/products/${g}.jpg" alt="" loading="lazy"></a>`)
       .join("");
 
-    $("[data-sticker-duck]").innerHTML = duck();
   }
 
   function renderShop() {
@@ -553,10 +540,7 @@
 
     const tabs = $("[data-tabs]");
     const shades = $("[data-shades]");
-    const sortSel = $("[data-sort]");
     const qInput = $("[data-q]");
-    sortSel.innerHTML = D.sortOptions.map((o) => `<option value="${o.id}">${o.label}</option>`).join("");
-    sortSel.value = state.sort;
     qInput.value = state.q;
 
     function sync() {
@@ -611,10 +595,6 @@
         sync();
       }
     });
-    sortSel.addEventListener("change", () => {
-      state.sort = sortSel.value;
-      sync();
-    });
     let t;
     qInput.addEventListener("input", () => {
       clearTimeout(t);
@@ -649,7 +629,6 @@
         <div>
           ${p.badge ? `<span class="b-badge b-badge--duck">${p.badge}</span>` : ""}
           <h1 class="b-pdp__name">${esc(p.name)}</h1>
-          <p class="b-pdp__ar">${esc(p.nameAr)}</p>
         </div>
         <p class="b-pdp__price">${money(p.price)}</p>
         <p class="b-pdp__desc">${esc(p.description)}</p>
@@ -873,7 +852,6 @@
     root.innerHTML = `
       <div class="b-confirm">
         <span class="b-confirm__mark">${duck()}</span>
-        <p class="b-eyebrow">Order placed</p>
         <h1 class="b-title">Thank you, ${esc(o.name.split(" ")[0])}!</h1>
         <p class="b-page-head__lead">We'll call you within a few hours to confirm. ${payText}</p>
         <span class="b-confirm__number">${o.number}</span>
