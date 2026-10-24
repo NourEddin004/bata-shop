@@ -1,6 +1,6 @@
 /*
   Bata Shop — storefront script.
-  Shared chrome (header, footer, bag drawer, search, toasts), a localStorage bag + wishlist,
+  Shared chrome (header, footer, bag drawer, search, toasts), a localStorage bag,
   and one render function per page, picked by <body data-page="…">.
 */
 (function () {
@@ -42,7 +42,6 @@
   /* ---------- Icons ---------- */
   const ICONS = {
     search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
-    heart: '<path d="M12 20s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>',
     bag: '<path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h10"/>',
     close: '<path d="M6 6l12 12M18 6L6 18"/>',
@@ -114,7 +113,7 @@
       <span class="b-logo-full__ar">${S.nameAr}</span>
     </span>`;
 
-  /* ---------- Bag & wishlist ---------- */
+  /* ---------- Bag ---------- */
   const bag = {
     lines: storage.get("bata.bag", []),
     save() {
@@ -153,24 +152,6 @@
     }
   };
 
-  const wishlist = {
-    ids: storage.get("bata.wishlist", []),
-    has(id) {
-      return this.ids.includes(id);
-    },
-    toggle(id) {
-      const on = !this.has(id);
-      this.ids = on ? [...this.ids, id] : this.ids.filter((x) => x !== id);
-      storage.set("bata.wishlist", this.ids);
-      renderWishCount();
-      $$(`[data-wish="${id}"]`).forEach((b) => {
-        b.classList.toggle("is-active", on);
-        b.setAttribute("aria-pressed", on);
-      });
-      if (page === "wishlist") renderWishlistPage();
-      return on;
-    }
-  };
 
   /* ---------- Shared chrome ---------- */
   const NAV = [
@@ -200,7 +181,6 @@
           </nav>
           <div class="b-header__tools">
             <button class="b-icon-btn" type="button" data-open="search" aria-label="Search">${icon("search")}</button>
-            <a class="b-icon-btn b-header__desktop" href="wishlist.html" aria-label="Wishlist">${icon("heart")}<span class="b-count" data-wish-count></span></a>
             <button class="b-icon-btn" type="button" data-open="bag" aria-label="Shopping bag">${icon("bag")}<span class="b-count" data-bag-count></span></button>
           </div>
         </div>
@@ -218,7 +198,6 @@
         <div class="b-footer__col">
           <p class="b-footer__heading">Shop</p>
           ${D.categories.map((c) => `<a href="shop.html${c.id === "all" ? "" : "?cat=" + c.id}">${c.label}</a>`).join("")}
-          <a href="wishlist.html">Wishlist</a>
         </div>
         <div class="b-footer__col">
           <p class="b-footer__heading">Help</p>
@@ -260,7 +239,6 @@
           <nav class="b-menu-links" aria-label="Mobile">
             ${NAV.map((n) => `<a href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}${icon("arrow")}</a>`).join("")}
             <a href="shop.html?cat=dresses">Abayas & Dresses${icon("arrow")}</a>
-            <a href="wishlist.html">Wishlist${icon("arrow")}</a>
           </nav>
         </div>
         <div class="b-drawer__foot">
@@ -302,7 +280,6 @@
     document.body.append(...overlays.childNodes);
 
     renderBagCount();
-    renderWishCount();
     renderDrawer();
     wireOverlays();
   }
@@ -314,12 +291,6 @@
     });
   }
 
-  function renderWishCount() {
-    $$("[data-wish-count]").forEach((el) => {
-      el.textContent = wishlist.ids.length;
-      el.dataset.count = wishlist.ids.length;
-    });
-  }
 
   /* ---------- Overlays: drawers, search, modal ---------- */
   let openPanel = null;
@@ -462,13 +433,6 @@
       bag.remove(Number(r.dataset.remove));
       return;
     }
-    const w = e.target.closest("[data-wish]");
-    if (w) {
-      e.preventDefault();
-      const on = wishlist.toggle(w.dataset.wish);
-      toast(on ? 'Saved to your <a href="wishlist.html">wishlist</a>' : "Removed from your wishlist");
-      return;
-    }
     const quick = e.target.closest("[data-quick]");
     if (quick) {
       e.preventDefault();
@@ -478,7 +442,6 @@
 
   /* ---------- Product card ---------- */
   function cardHtml(p) {
-    const saved = wishlist.has(p.id);
     return `
       <article class="b-card">
         <a class="b-card__media" href="${productUrl(p)}">
@@ -486,7 +449,6 @@
           ${p.badge ? `<span class="b-badge b-card__badge${p.badge === "New" ? " b-badge--duck" : ""}">${p.badge}</span>` : ""}
           <span class="b-btn b-card__quick" data-quick="${p.id}" role="button" tabindex="0">Choose size</span>
         </a>
-        <button class="b-icon-btn b-card__heart${saved ? " is-active" : ""}" type="button" data-wish="${p.id}" aria-pressed="${saved}" aria-label="Save ${esc(p.name)}">${icon("heart")}</button>
         <div class="b-card__info">
           <div>
             <a class="b-card__name" href="${productUrl(p)}">${esc(p.name)}</a>
@@ -615,7 +577,6 @@
       { label: "Top detail", pos: "center 8%" },
       { label: "Hem & shoes", pos: "center 92%" }
     ];
-    const saved = wishlist.has(p.id);
 
     $("[data-pdp]").innerHTML = `
       <div class="b-gallery">
@@ -650,7 +611,6 @@
             <button type="button" data-pdp-step="1" aria-label="More">+</button>
           </div>
           <button class="b-btn b-btn--primary" type="submit">Add to bag · ${money(p.price)}</button>
-          <button class="b-icon-btn${saved ? " is-active" : ""}" type="button" data-wish="${p.id}" aria-pressed="${saved}" aria-label="Save to wishlist">${icon("heart")}</button>
         </div>
         <ul class="b-pdp__perks">
           <li>${icon("truck")} Delivered in 1–2 days in Amman & Zarqa, 2–4 days elsewhere</li>
@@ -869,13 +829,6 @@
       </div>`;
   }
 
-  function renderWishlistPage() {
-    const root = $("[data-wishlist]");
-    const items = wishlist.ids.map(byId).filter(Boolean);
-    root.innerHTML = items.length
-      ? `<div class="b-grid b-grid--4">${items.map(cardHtml).join("")}</div>`
-      : emptyHtml("No saved pieces yet", "Tap the heart on anything you like and it'll wait for you here.");
-  }
 
   function renderContact() {
     $("[data-full-logo]").innerHTML = fullLogo();
@@ -883,5 +836,5 @@
 
   /* ---------- Boot ---------- */
   renderChrome();
-  ({ home: renderHome, shop: renderShop, product: renderProduct, cart: renderCartPage, checkout: renderCheckout, wishlist: renderWishlistPage, contact: renderContact }[page] || (() => {}))();
+  ({ home: renderHome, shop: renderShop, product: renderProduct, cart: renderCartPage, checkout: renderCheckout, contact: renderContact }[page] || (() => {}))();
 })();

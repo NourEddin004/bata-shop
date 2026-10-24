@@ -21,14 +21,13 @@ Then open http://127.0.0.1:5190.
 | File | What it shows |
 | --- | --- |
 | `index.html` | Hero with three arched looks, trust strip, categories, new in, story, how to order, reviews, Instagram strip |
-| `shop.html` | Catalog with category tabs, colour filters, search and sort (`?cat=sets&shade=plum&q=coat&sort=price-asc`) |
-| `product.html?id=…` | Gallery, required size choice, size guide, quantity, wishlist, details and related pieces |
+| `shop.html` | Catalog with category tabs, colour filters and search (`?cat=sets&shade=plum&q=coat`) |
+| `product.html?id=…` | Gallery, required size choice, size guide, quantity, details and related pieces |
 | `cart.html` | Full bag with free-delivery progress |
-| `wishlist.html` | Saved pieces |
 | `checkout.html` | Jordan city → area address, +962 phone, delivery by city, cash on delivery / CliQ / branch pickup, confirmation |
 | `contact.html` | Branches (Zarqa, Amman), FAQ |
 
-The bag drawer, search panel, menu and toasts are on every page. The bag, wishlist and last order
+The bag drawer, search panel, menu and toasts are on every page. The bag and last order
 live in `localStorage`. Nothing is sent anywhere.
 
 ## Editing

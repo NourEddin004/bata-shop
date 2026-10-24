@@ -450,10 +450,6 @@ ol {
   align-items: center;
 }
 
-.b-header__desktop {
-  display: none;
-}
-
 @media (min-width: 64rem) {
   .b-header__bar {
     display: grid;
@@ -478,10 +474,6 @@ ol {
 
   .b-header__tools {
     justify-self: end;
-  }
-
-  .b-header__desktop {
-    display: inline-grid;
   }
 }
 
@@ -1054,21 +1046,6 @@ ol {
   position: absolute;
   top: var(--space-3);
   left: var(--space-3);
-}
-
-.b-card__heart {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  background: rgb(255 255 255 / 0.9);
-}
-
-.b-card__heart:hover {
-  background: var(--color-white);
-}
-
-.b-card__heart.is-active .b-icon {
-  fill: var(--color-ink);
 }
 
 .b-card__quick {
@@ -1786,19 +1763,9 @@ ol {
 
 .b-pdp__buy {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   gap: var(--space-3);
   align-items: center;
-}
-
-.b-pdp__buy .b-icon-btn {
-  border: var(--border-thin) solid var(--color-line-strong);
-  width: 3rem;
-  height: 3rem;
-}
-
-.b-pdp__buy .b-icon-btn.is-active .b-icon {
-  fill: var(--color-ink);
 }
 
 .b-pdp__perks {
