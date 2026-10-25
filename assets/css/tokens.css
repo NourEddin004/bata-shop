@@ -98,7 +98,7 @@
   --space-20: 5rem;
   --gutter: clamp(1rem, 4vw, 3.5rem);
   --section: clamp(3.5rem, 8vw, 7rem);
-  --header-h: clamp(6.25rem, 9.4vw, 9rem);
+  --header-h: clamp(3.75rem, 5vw, 4.5rem);
   --header-float: 0.625rem;
 
   --container-wide: 92rem;

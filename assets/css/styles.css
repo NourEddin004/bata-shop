@@ -381,37 +381,39 @@ ol {
 }
 
 .b-header__tools .b-icon {
-  width: 1.6rem;
-  height: 1.6rem;
-  stroke-width: 1.35;
+  width: 1.35rem;
+  height: 1.35rem;
+  stroke-width: 1.45;
 }
 
 .b-header__account {
   display: none;
 }
 
-/* Their logo, centred: scaled down from the full stacked lockup */
+/* Their logo, centred: monogram beside the wordmark so the bar stays slim */
 .b-header__logo .b-logo-full,
 .b-menu-logo .b-logo-full {
-  gap: clamp(0.05rem, 0.25vw, 0.25rem);
+  grid-auto-flow: column;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .b-header__logo .b-logo-full__mark {
-  width: clamp(2.6rem, 5vw, 4.75rem);
-  height: clamp(2.6rem, 5vw, 4.75rem);
+  width: clamp(2.25rem, 3vw, 2.75rem);
+  height: clamp(2.25rem, 3vw, 2.75rem);
 }
 
 .b-header__logo .b-logo-full__name {
-  font-size: clamp(1.15rem, 2.1vw, 2rem);
+  font-size: clamp(1rem, 1.35vw, 1.25rem);
 }
 
 .b-menu-logo .b-logo-full__mark {
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2.25rem;
+  height: 2.25rem;
 }
 
 .b-menu-logo .b-logo-full__name {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 @media (min-width: 30rem) {
