@@ -851,7 +851,7 @@ ol {
   border-radius: var(--radius-full);
   background: var(--color-hero-dot);
   opacity: 0.45;
-  transition: width var(--duration-base) var(--ease-out), opacity var(--duration-base);
+  transition: opacity var(--duration-base);
 }
 
 .b-hero__dot.is-active::after {
