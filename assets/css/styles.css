@@ -349,7 +349,7 @@ ol {
   top: 0;
   z-index: var(--z-header);
   height: var(--header-h);
-  background: var(--color-header);
+  background: var(--color-cream);
 }
 
 .b-header__bar {
@@ -373,7 +373,7 @@ ol {
   padding-block: var(--space-2);
   font-size: clamp(0.95rem, 1.1vw, 1.0625rem);
   letter-spacing: 0.01em;
-  color: var(--color-nav);
+  color: var(--color-ink-soft);
 }
 
 .b-header__link::after {
@@ -402,7 +402,7 @@ ol {
   align-items: center;
   justify-self: end;
   gap: clamp(0rem, 1.2vw, 1.25rem);
-  color: var(--color-nav);
+  color: var(--color-ink-soft);
 }
 
 .b-header__tools .b-icon-btn {
@@ -729,21 +729,59 @@ ol {
 /* ========== Hero: full-bleed photo, copy on the left, slide dots ========== */
 .b-hero {
   position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   height: max(34rem, min(57.2vw, calc(100svh - var(--header-h))));
   overflow: hidden;
-  background: var(--color-hero-wall);
+  background: var(--color-sand);
 }
 
-.b-hero__img {
+/* Their own look, standing in an arch with a deeper niche behind it */
+.b-hero__stage {
+  grid-area: 1 / 2;
+  display: grid;
+  place-items: center;
+  padding-block: clamp(2rem, 4vw, 4rem);
+}
+
+.b-hero__arch {
+  position: relative;
+  height: min(100%, 44rem);
+  aspect-ratio: 9 / 16;
+}
+
+.b-hero__arch::before {
+  content: "";
+  position: absolute;
+  inset: -6% -28% -12%;
+  border-radius: var(--radius-arch);
+  background: var(--color-sand-deep);
+}
+
+.b-hero__frame {
+  position: relative;
+  height: 100%;
+  border-radius: var(--radius-arch);
+  overflow: hidden;
+  box-shadow: var(--shadow-float);
+}
+
+.b-hero__photo {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 62% center;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+
+.b-hero__photo.is-active {
+  opacity: 1;
 }
 
 .b-hero__inner {
+  grid-area: 1 / 1;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -776,7 +814,7 @@ ol {
   font-size: clamp(0.72rem, 1.1vw, 1.05rem);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-hero-eyebrow);
+  color: var(--color-ink-muted);
 }
 
 .b-hero__title {
@@ -786,7 +824,7 @@ ol {
   font-weight: 400;
   line-height: 1.04;
   letter-spacing: -0.005em;
-  color: var(--color-hero-title);
+  color: var(--color-ink);
 }
 
 .b-hero__lead {
@@ -794,7 +832,7 @@ ol {
   font-size: clamp(0.95rem, 1.28vw, 1.25rem);
   line-height: 1.45;
   letter-spacing: 0.01em;
-  color: var(--color-hero-text);
+  color: var(--color-ink-muted);
 }
 
 .b-hero__cta {
@@ -805,8 +843,8 @@ ol {
   margin-top: clamp(1.25rem, 1.8vw, 1.75rem);
   padding-inline: clamp(1.5rem, 2.45vw, 2.4rem);
   border-radius: var(--radius-full);
-  background: var(--color-hero-cta);
-  color: var(--color-hero-cta-text);
+  background: var(--color-duck);
+  color: var(--color-ink);
   font-size: clamp(0.95rem, 1.17vw, 1.15rem);
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -814,7 +852,7 @@ ol {
 }
 
 .b-hero__cta:hover {
-  background: var(--color-hero-cta-hover);
+  background: var(--color-duck-deep);
 }
 
 .b-hero__cta .b-icon {
@@ -849,7 +887,7 @@ ol {
   width: 0.3rem;
   height: 0.3rem;
   border-radius: var(--radius-full);
-  background: var(--color-hero-dot);
+  background: var(--color-ink);
   opacity: 0.45;
   transition: opacity var(--duration-base);
 }
@@ -862,24 +900,23 @@ ol {
 
 @media (max-width: 47.99rem) {
   .b-hero {
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: 1fr;
     height: auto;
-    background: var(--color-header);
-  }
-
-  .b-hero__img {
-    position: relative;
-    order: 2;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    object-position: 75% center;
   }
 
   .b-hero__inner {
-    order: 1;
     height: auto;
     padding: var(--space-8) var(--gutter) var(--space-6);
+  }
+
+  .b-hero__stage {
+    grid-area: 2 / 1;
+    padding: var(--space-4) var(--gutter) var(--space-12);
+  }
+
+  .b-hero__arch {
+    height: auto;
+    width: min(68%, 18rem);
   }
 
   .b-hero br {
@@ -892,14 +929,27 @@ ol {
   }
 }
 
-/* ========== Section tones: every band gets its own background ========== */
-.b-tone--ivory { background: var(--tone-ivory); }
-.b-tone--white { background: var(--tone-white); }
-.b-tone--sand { background: var(--tone-sand); }
-.b-tone--butter { background: var(--tone-butter); }
-.b-tone--sage { background: var(--tone-sage); }
-.b-tone--blush { background: var(--tone-blush); }
-.b-tone--stone { background: var(--tone-stone); }
+/* ========== Section tones: 60 / 30 / 10 ==========
+   Bands alternate between the light neutrals (white, cream, sand: the 60) and the
+   logo black (the 30), so each section's start and end is obvious. Yellow stays an accent (10). */
+.b-tone--white { background: var(--color-surface); }
+.b-tone--cream { background: var(--color-cream); }
+.b-tone--sand { background: var(--color-sand); }
+
+/* Black band: re-point the ink tokens so everything inside flips to light-on-dark */
+.b-tone--ink,
+.b-footer {
+  --color-ink: var(--dark-ink);
+  --color-ink-soft: var(--dark-ink-soft);
+  --color-ink-muted: var(--dark-ink-muted);
+  --color-on-ink: var(--dark-bg);
+  --color-cream: var(--dark-raised);
+  --color-line: var(--dark-line);
+  --color-line-faint: var(--dark-line-faint);
+  --color-line-strong: var(--dark-line-strong);
+  background: var(--dark-bg);
+  color: var(--color-ink);
+}
 
 [id] {
   scroll-margin-top: var(--header-h);
@@ -1315,7 +1365,6 @@ ol {
 /* ========== Footer ========== */
 .b-footer {
   padding: var(--space-16) var(--gutter) var(--space-8);
-  background: var(--tone-olive);
 }
 
 .b-footer__grid {

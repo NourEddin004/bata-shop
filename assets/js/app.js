@@ -456,6 +456,7 @@
     const root = $("[data-hero]");
     const slides = $$("[data-slide]", root);
     const dots = $$("[data-dot]", root);
+    const photos = $$("[data-photo]", root);
     let current = 0;
     let timer;
     const show = (i) => {
@@ -466,6 +467,7 @@
         s.toggleAttribute("inert", !on);
         s.setAttribute("aria-hidden", !on);
       });
+      photos.forEach((p, n) => p.classList.toggle("is-active", n === current));
       dots.forEach((d, n) => {
         d.classList.toggle("is-active", n === current);
         if (n === current) d.setAttribute("aria-current", "true");

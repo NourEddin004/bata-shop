@@ -33,8 +33,8 @@ live in `localStorage`. Nothing is sent anywhere.
 ## Editing
 
 - **Products, prices, cities, reviews, copy:** `assets/js/catalog.js`
-- **Colours, fonts, spacing:** `assets/css/tokens.css` (the only file with raw values; each page band uses a `--tone-*` colour)
-- **Hero photo:** `assets/img/hero/courtyard.jpg`, text and slides in `index.html`
+- **Colours, fonts, spacing:** `assets/css/tokens.css` (the only file with raw values). Page bands use `b-tone--white/cream/sand/ink` for the 60/30/10 split
+- **Hero:** text and slides in `index.html`; each slide shows one of the product photos in `assets/img/products/`
 - **Components:** `assets/css/styles.css` (`b-*` classes, `is-*` states)
 - **Logo:** redrawn as SVG in `assets/js/app.js` (`monogram()` and `duck()`), because Instagram
   only serves the original at 150 px. The original is kept at `assets/img/logo-instagram.jpg`
