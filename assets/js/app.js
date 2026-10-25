@@ -485,24 +485,17 @@
     play();
   }
 
-  /* Lookbook wall: three columns of looks drifting up and down (desktop),
-     one row gliding sideways (phones). Each list is rendered twice so the loop is seamless. */
+  /* Lookbook wall: a still collage of looks in three staggered columns (desktop),
+     one swipeable row (phones). */
   function lookWall() {
-    const look = (p, copy) => `
-      <a class="b-look" href="${productUrl(p)}"${copy ? ' tabindex="-1" aria-hidden="true"' : ""}>
-        <img src="${p.image}" alt="${copy ? "" : esc(p.name)}">
+    const look = (p) => `
+      <a class="b-look" href="${productUrl(p)}">
+        <img src="${p.image}" alt="${esc(p.name)}">
         <span class="b-look__tag">${esc(p.name)} · ${money(p.price)}</span>
       </a>`;
-    const loop = (list) => list.map((p) => look(p)).join("") + list.map((p) => look(p, true)).join("");
-
-    const cols = [0, 1, 2].map((c) => {
-      const list = D.products.filter((_, i) => i % 3 === c);
-      // Short columns borrow looks they don't already show, so nothing repeats back to back
-      for (const p of [...D.products.slice(c), ...D.products.slice(0, c)]) if (list.length < 4 && !list.includes(p)) list.push(p);
-      return list;
-    });
-    $("[data-wall]").innerHTML = cols.map((list) => `<div class="b-wall__col"><div class="b-wall__track">${loop(list)}</div></div>`).join("");
-    $("[data-strip]").innerHTML = `<div class="b-strip__track">${loop(D.products)}</div>`;
+    const cols = [0, 1, 2].map((c) => D.products.filter((_, i) => i % 3 === c));
+    $("[data-wall]").innerHTML = cols.map((list) => `<div class="b-wall__col">${list.map(look).join("")}</div>`).join("");
+    $("[data-strip]").innerHTML = D.products.map(look).join("");
   }
 
   function renderShopIntro() {

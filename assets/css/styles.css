@@ -686,7 +686,7 @@ ol {
   background: var(--color-sand);
 }
 
-/* Lookbook wall: the brand's own looks drifting in three columns */
+/* Lookbook wall: a still collage of the brand's own looks, middle column set higher */
 .b-hero__wall {
   --wall-gap: clamp(0.6rem, 1.1vw, 1.1rem);
   grid-area: 1 / 2;
@@ -696,47 +696,19 @@ ol {
   height: 100%;
   padding-right: var(--gutter);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(transparent, black 14%, black 86%, transparent);
-  mask-image: linear-gradient(transparent, black 14%, black 86%, transparent);
+  -webkit-mask-image: linear-gradient(transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(transparent, black 10%, black 90%, transparent);
 }
 
-.b-wall__track {
+.b-wall__col {
   display: grid;
+  align-content: start;
   gap: var(--wall-gap);
-  padding-bottom: var(--wall-gap); /* one gap per card, so -50% is exactly one full set */
-  animation: b-wall-up 52s linear infinite;
+  margin-top: 12%;
 }
 
-.b-wall__col:nth-child(2) .b-wall__track {
-  animation-name: b-wall-down;
-  animation-duration: 60s;
-  animation-delay: -24s;
-}
-
-.b-wall__col:nth-child(3) .b-wall__track {
-  animation-duration: 46s;
-  animation-delay: -12s;
-}
-
-.b-hero__wall:hover .b-wall__track,
-.b-hero__wall:focus-within .b-wall__track,
-.b-hero__strip:hover .b-strip__track {
-  animation-play-state: paused;
-}
-
-@keyframes b-wall-up {
-  to {
-    transform: translateY(-50%);
-  }
-}
-
-@keyframes b-wall-down {
-  from {
-    transform: translateY(-50%);
-  }
-  to {
-    transform: translateY(0);
-  }
+.b-wall__col:nth-child(2) {
+  margin-top: -8%;
 }
 
 .b-look {
@@ -784,29 +756,11 @@ ol {
   transform: none;
 }
 
-/* Phones get one sideways row instead of the wall */
+/* Phones get one swipeable row instead of the wall */
 .b-hero__strip {
   display: none;
 }
 
-.b-strip__track {
-  display: flex;
-  gap: var(--space-3);
-  width: max-content;
-  padding-right: var(--space-3);
-  animation: b-strip 45s linear infinite;
-}
-
-.b-strip__track .b-look {
-  flex: none;
-  width: 9.5rem;
-}
-
-@keyframes b-strip {
-  to {
-    transform: translateX(-50%);
-  }
-}
 
 .b-hero__inner {
   grid-area: 1 / 1;
@@ -942,12 +896,20 @@ ol {
   }
 
   .b-hero__strip {
-    display: block;
+    display: flex;
     grid-area: 2 / 1;
-    padding-bottom: var(--space-10);
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    gap: var(--space-3);
+    padding: 0 var(--gutter) var(--space-10);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .b-hero__strip .b-look {
+    flex: none;
+    width: 9.5rem;
+    scroll-snap-align: start;
   }
 
   .b-hero br {

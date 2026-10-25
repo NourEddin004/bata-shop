@@ -20,7 +20,7 @@ Then open http://127.0.0.1:5190.
 
 | File | What it shows |
 | --- | --- |
-| `index.html` | Hero with three slides and a moving lookbook wall of every product, trust strip, our story (About), how to order, reviews, Instagram strip |
+| `index.html` | Hero with three slides and a still lookbook collage of every product, trust strip, our story (About), how to order, reviews, Instagram strip |
 | `shop.html` | Category tiles, new this week, then the catalog with category tabs, colour filters and search (`?cat=sets&shade=plum&q=coat`) |
 | `product.html?id=…` | Gallery, required size choice, size guide, quantity, details and related pieces |
 | `cart.html` | Full bag with free-delivery progress |
