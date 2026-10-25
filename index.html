@@ -10,62 +10,48 @@
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:opsz,wght@6..96,500..600&family=Tajawal:wght@700&display=swap">
-  <link rel="stylesheet" href="assets/css/tokens.css?v=3">
-  <link rel="stylesheet" href="assets/css/styles.css?v=3">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:opsz,wght@6..96,500..600&family=Gilda+Display&family=Tajawal:wght@700&display=swap">
+  <link rel="stylesheet" href="assets/css/tokens.css?v=9">
+  <link rel="stylesheet" href="assets/css/styles.css?v=9">
 </head>
 <body data-page="home">
 
   <main id="main">
-    <section class="b-hero">
-      <div class="b-hero__content">
-        <h1 class="b-hero__title">Modest, made for <em>every day</em>.</h1>
-        <p class="b-hero__lead">Long coats, matching sets and easy abayas, cut loose and long for women who wear hijab. Designed in Jordan, by Saja Yaser.</p>
-        <div class="b-hero__actions">
-          <a class="b-btn b-btn--primary" href="shop.html">Shop the collection</a>
-          <a class="b-text-link" href="shop.html?cat=outerwear">New coats</a>
+    <section class="b-hero" aria-roledescription="carousel" aria-label="Featured" data-hero>
+      <img class="b-hero__img" src="assets/img/hero/courtyard.jpg" alt="A woman in a yellow abaya and cream hijab walking through a sunlit courtyard" fetchpriority="high">
+      <div class="b-hero__inner">
+        <div class="b-hero__slides">
+        <div class="b-hero__slide is-active" data-slide role="group" aria-roledescription="slide" aria-label="1 of 3">
+          <p class="b-hero__eyebrow">Modest wear, modern days</p>
+          <h1 class="b-hero__title">Timeless Looks<br> for Every You</h1>
+          <p class="b-hero__lead">Comfortable, modest and effortlessly stylish<br> — made for your everyday moments.</p>
+          <a class="b-hero__cta" href="shop.html">Shop Now <svg class="b-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <div class="b-hero__stats">
-          <div class="b-hero__stat"><strong>420K</strong><span>on Instagram</span></div>
-          <div class="b-hero__stat"><strong>2</strong><span>branches</span></div>
-          <div class="b-hero__stat"><strong>1–2 days</strong><span>delivery</span></div>
+        <div class="b-hero__slide" data-slide role="group" aria-roledescription="slide" aria-label="2 of 3" aria-hidden="true" inert>
+          <p class="b-hero__eyebrow">New this week</p>
+          <h2 class="b-hero__title">Coats for the<br> Cooler Days</h2>
+          <p class="b-hero__lead">Long trenches and structured coats,<br> cut loose and long over every set.</p>
+          <a class="b-hero__cta" href="shop.html?cat=outerwear">Shop Coats <svg class="b-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-      </div>
-      <div class="b-hero__stage" role="group" aria-label="This season's looks">
-        <a class="b-arch" href="product.html?id=aubergine-suit-set"><img src="assets/img/products/look-04.jpg" alt="Aubergine suit set"><span class="b-arch__tag">Aubergine Suit Set</span></a>
-        <a class="b-arch" href="product.html?id=camel-trench-coat"><img src="assets/img/products/look-10.jpg" alt="Camel trench coat"><span class="b-arch__tag">Camel Trench</span></a>
-        <a class="b-arch" href="product.html?id=noir-striped-cuff-coat"><img src="assets/img/products/look-09.jpg" alt="Black coat with striped cuffs"><span class="b-arch__tag">Noir Coat</span></a>
+        <div class="b-hero__slide" data-slide role="group" aria-roledescription="slide" aria-label="3 of 3" aria-hidden="true" inert>
+          <p class="b-hero__eyebrow">Zarqa &amp; Amman</p>
+          <h2 class="b-hero__title">Try It On<br> in Our Branches</h2>
+          <p class="b-hero__lead">Visit us on Street 30 or Jabal Al-Hussein<br> — or order online and pay on delivery.</p>
+          <a class="b-hero__cta" href="contact.html">Visit Us <svg class="b-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+        </div>
+        <div class="b-hero__dots"><button class="b-hero__dot is-active" type="button" data-dot="0" aria-label="Show slide 1" aria-current="true"></button><button class="b-hero__dot" type="button" data-dot="1" aria-label="Show slide 2"></button><button class="b-hero__dot" type="button" data-dot="2" aria-label="Show slide 3"></button></div>
       </div>
     </section>
 
-    <section class="b-trust" aria-label="Why shop with us">
+    <section class="b-trust b-tone--sand" aria-label="Why shop with us">
       <div class="b-trust__item"><span class="b-trust__icon"><svg class="b-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg></span><div><p class="b-trust__title">Delivery across Jordan</p><p class="b-trust__text">Free over JD 60. Next day in Amman & Zarqa.</p></div></div>
       <div class="b-trust__item"><span class="b-trust__icon"><svg class="b-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6.5" width="18" height="11" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><div><p class="b-trust__title">Cash on delivery</p><p class="b-trust__text">Check it, try it, then pay the driver.</p></div></div>
       <div class="b-trust__item"><span class="b-trust__icon"><svg class="b-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10l1.5-5h13L20 10M4 10h16M4 10v9h16v-9M9.5 19v-5h5v5"/></svg></span><div><p class="b-trust__title">Two branches</p><p class="b-trust__text">Zarqa, Street 30 · Amman, Jabal Al-Hussein.</p></div></div>
       <div class="b-trust__item"><span class="b-trust__icon"><svg class="b-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg></span><div><p class="b-trust__title">Easy exchange</p><p class="b-trust__text">Swap size or colour within 3 days.</p></div></div>
     </section>
 
-    <section class="b-section">
-      <div class="b-container">
-        <div class="b-section-head">
-          <div class="b-section-head__copy"><h2 class="b-title">Find your look</h2></div>
-          <a class="b-text-link" href="shop.html">View all</a>
-        </div>
-        <div class="b-cats" data-cats></div>
-      </div>
-    </section>
-
-    <section class="b-section b-band">
-      <div class="b-container">
-        <div class="b-section-head">
-          <div class="b-section-head__copy"><h2 class="b-title">New this week</h2></div>
-          <a class="b-text-link" href="shop.html?sort=new">Shop new in</a>
-        </div>
-        <div class="b-grid b-grid--4" data-new-in></div>
-      </div>
-    </section>
-
-    <section class="b-section">
+    <section class="b-section b-tone--butter" id="story">
       <div class="b-container b-callout">
         <div class="b-callout__looks">
           <div class="b-callout__look"><img src="assets/img/products/look-03.jpg" alt="Plum tatreez set" loading="lazy"></div>
@@ -81,7 +67,7 @@
       </div>
     </section>
 
-    <section class="b-section b-band" id="order">
+    <section class="b-section b-tone--sage" id="order">
       <div class="b-container">
         <div class="b-section-head"><div class="b-section-head__copy"><h2 class="b-title">From Instagram to your door</h2></div></div>
         <ol class="b-steps">
@@ -93,23 +79,25 @@
       </div>
     </section>
 
-    <section class="b-section">
+    <section class="b-section b-tone--blush">
       <div class="b-container">
         <div class="b-section-head"><div class="b-section-head__copy"><h2 class="b-title">What our girls say</h2></div></div>
         <div class="b-reviews" data-reviews></div>
       </div>
     </section>
 
-    <section class="b-container">
-      <div class="b-section-head">
-        <div class="b-section-head__copy"><h2 class="b-title">420K of us on Instagram</h2></div>
-        <a class="b-btn b-btn--ghost" href="https://www.instagram.com/bata_shop1/" target="_blank" rel="noopener">Follow</a>
+    <section class="b-section b-tone--stone">
+      <div class="b-container">
+        <div class="b-section-head">
+          <div class="b-section-head__copy"><h2 class="b-title">420K of us on Instagram</h2></div>
+          <a class="b-btn b-btn--ghost" href="https://www.instagram.com/bata_shop1/" target="_blank" rel="noopener">Follow</a>
+        </div>
+        <div class="b-gram" data-gram></div>
       </div>
-      <div class="b-gram" data-gram></div>
     </section>
   </main>
 
-  <script src="assets/js/catalog.js?v=3"></script>
-  <script src="assets/js/app.js?v=3"></script>
+  <script src="assets/js/catalog.js?v=9"></script>
+  <script src="assets/js/app.js?v=9"></script>
 </body>
 </html>

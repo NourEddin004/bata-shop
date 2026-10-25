@@ -20,8 +20,8 @@ Then open http://127.0.0.1:5190.
 
 | File | What it shows |
 | --- | --- |
-| `index.html` | Hero with three arched looks, trust strip, categories, new in, story, how to order, reviews, Instagram strip |
-| `shop.html` | Catalog with category tabs, colour filters and search (`?cat=sets&shade=plum&q=coat`) |
+| `index.html` | Full-width hero with three slides, trust strip, our story (About), how to order, reviews, Instagram strip |
+| `shop.html` | Category tiles, new this week, then the catalog with category tabs, colour filters and search (`?cat=sets&shade=plum&q=coat`) |
 | `product.html?id=…` | Gallery, required size choice, size guide, quantity, details and related pieces |
 | `cart.html` | Full bag with free-delivery progress |
 | `checkout.html` | Jordan city → area address, +962 phone, delivery by city, cash on delivery / CliQ / branch pickup, confirmation |
@@ -33,7 +33,8 @@ live in `localStorage`. Nothing is sent anywhere.
 ## Editing
 
 - **Products, prices, cities, reviews, copy:** `assets/js/catalog.js`
-- **Colours, fonts, spacing:** `assets/css/tokens.css` (the only file with raw values)
+- **Colours, fonts, spacing:** `assets/css/tokens.css` (the only file with raw values; each page band uses a `--tone-*` colour)
+- **Hero photo:** `assets/img/hero/courtyard.jpg`, text and slides in `index.html`
 - **Components:** `assets/css/styles.css` (`b-*` classes, `is-*` states)
 - **Logo:** redrawn as SVG in `assets/js/app.js` (`monogram()` and `duck()`), because Instagram
   only serves the original at 150 px. The original is kept at `assets/img/logo-instagram.jpg`

@@ -10,32 +10,56 @@
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:opsz,wght@6..96,500..600&family=Tajawal:wght@700&display=swap">
-  <link rel="stylesheet" href="assets/css/tokens.css?v=3">
-  <link rel="stylesheet" href="assets/css/styles.css?v=3">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:opsz,wght@6..96,500..600&family=Gilda+Display&family=Tajawal:wght@700&display=swap">
+  <link rel="stylesheet" href="assets/css/tokens.css?v=9">
+  <link rel="stylesheet" href="assets/css/styles.css?v=9">
 </head>
 <body data-page="shop">
 
   <main id="main">
-    <header class="b-page-head">
-      <h1 class="b-title" data-shop-title>The collection</h1>
+    <header class="b-page-head b-tone--sand">
+      <h1 class="b-title">Shop</h1>
       <p class="b-page-head__lead">Sets, coats and abayas cut long and loose. New pieces every week.</p>
     </header>
-    <div class="b-container">
-      <div class="b-tabs" data-tabs role="group" aria-label="Category"></div>
-      <div class="b-toolbar">
-        <div class="b-toolbar__shades" data-shades role="group" aria-label="Colour"></div>
-        <form class="b-toolbar__controls" data-q-form role="search">
-          <label class="b-sr" for="shop-q">Search</label>
-          <input class="b-input b-input--pill" id="shop-q" type="search" placeholder="Search" data-q style="width:12rem">
-        </form>
+
+    <section class="b-section b-tone--ivory">
+      <div class="b-container">
+        <div class="b-section-head">
+          <div class="b-section-head__copy"><h2 class="b-title">Find your look</h2></div>
+        </div>
+        <div class="b-cats" data-cats></div>
       </div>
-      <p class="b-toolbar__count" data-count style="margin:-1.5rem 0 1.5rem"></p>
-      <div class="b-grid" data-grid></div>
-    </div>
+    </section>
+
+    <section class="b-section b-tone--white" id="new">
+      <div class="b-container">
+        <div class="b-section-head">
+          <div class="b-section-head__copy"><h2 class="b-title">New this week</h2></div>
+        </div>
+        <div class="b-grid b-grid--4" data-new-in></div>
+      </div>
+    </section>
+
+    <section class="b-section b-tone--stone" id="catalog">
+      <div class="b-container">
+        <div class="b-section-head">
+          <div class="b-section-head__copy"><h2 class="b-title" data-shop-title>The collection</h2></div>
+        </div>
+        <div class="b-tabs" data-tabs role="group" aria-label="Category"></div>
+        <div class="b-toolbar">
+          <div class="b-toolbar__shades" data-shades role="group" aria-label="Colour"></div>
+          <form class="b-toolbar__controls" data-q-form role="search">
+            <label class="b-sr" for="shop-q">Search</label>
+            <input class="b-input b-input--pill" id="shop-q" type="search" placeholder="Search" data-q style="width:12rem">
+          </form>
+        </div>
+        <p class="b-toolbar__count" data-results-count style="margin:-1.5rem 0 1.5rem"></p>
+        <div class="b-grid" data-grid></div>
+      </div>
+    </section>
   </main>
 
-  <script src="assets/js/catalog.js?v=3"></script>
-  <script src="assets/js/app.js?v=3"></script>
+  <script src="assets/js/catalog.js?v=9"></script>
+  <script src="assets/js/app.js?v=9"></script>
 </body>
 </html>

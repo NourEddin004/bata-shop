@@ -55,7 +55,8 @@
     whatsapp: '<path d="M5 19l1.1-3.6A7.5 7.5 0 1 1 9 18.3z"/><path d="M9.5 9.5c.3 1.8 1.6 3.4 3.6 4.3l1.2-1.1 1.6.8"/>',
     phone: '<path d="M6.5 4h3l1.5 4-2 1.2a10 10 0 0 0 5.8 5.8L16 13l4 1.5v3A2.5 2.5 0 0 1 17.5 20 13.5 13.5 0 0 1 4 6.5 2.5 2.5 0 0 1 6.5 4z"/>',
     pin: '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
-    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>'
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    user: '<circle cx="12" cy="8" r="3.8"/><path d="M4.8 20.2c.9-3.8 3.7-5.9 7.2-5.9s6.3 2.1 7.2 5.9"/>'
   };
   const icon = (name, cls = "") => `<svg class="b-icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
 
@@ -96,14 +97,7 @@
       <text x="48.5" y="70" text-anchor="middle" font-family="Bodoni Moda, Didot, Georgia, serif" font-size="46" font-weight="500" fill="currentColor">B</text>
     </svg>`;
 
-  const brandLockup = () => `
-    <span class="b-brand">
-      ${monogram("b-brand__mark")}
-      <span class="b-brand__words">
-        <span class="b-brand__name">BA${duck("b-brand__duck")}A</span>
-        <span class="b-brand__shop">Shop</span>
-      </span>
-    </span>`;
+
 
   const fullLogo = () => `
     <span class="b-logo-full" role="img" aria-label="Bata Shop — بطة شوب">
@@ -152,21 +146,15 @@
     }
   };
 
-
   /* ---------- Shared chrome ---------- */
   const NAV = [
-    { href: "index.html", label: "Home", page: "home" },
-    { href: "shop.html", label: "Shop all", page: "shop" },
-    { href: "shop.html?cat=sets", label: "Sets", cat: "sets" },
-    { href: "shop.html?cat=outerwear", label: "Coats", cat: "outerwear" },
+    { href: "shop.html", label: "Shop", page: "shop", header: true },
+    { href: "shop.html#new", label: "New In", page: "new", header: true },
+    { href: "index.html#story", label: "About", page: "about", header: true },
     { href: "contact.html", label: "Visit us", page: "contact" }
   ];
 
-  function isCurrent(item) {
-    if (item.cat) return page === "shop" && params.get("cat") === item.cat;
-    if (item.page === "shop") return page === "shop" && !["sets", "outerwear"].includes(params.get("cat"));
-    return item.page === page;
-  }
+  const isCurrent = (item) => item.page === page;
 
   function renderChrome() {
     const header = document.createElement("div");
@@ -175,12 +163,13 @@
       <header class="b-header">
         <div class="b-header__bar">
           <button class="b-icon-btn b-header__menu" type="button" data-open="menu" aria-label="Open menu">${icon("menu")}</button>
-          <a class="b-header__logo" href="index.html" aria-label="Bata Shop home">${brandLockup()}</a>
           <nav class="b-header__nav" aria-label="Main">
-            ${NAV.map((n) => `<a class="b-header__link" href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}</a>`).join("")}
+            ${NAV.filter((n) => n.header).map((n) => `<a class="b-header__link" href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}</a>`).join("")}
           </nav>
+          <a class="b-header__logo" href="index.html" aria-label="Bata Shop home">${fullLogo()}</a>
           <div class="b-header__tools">
             <button class="b-icon-btn" type="button" data-open="search" aria-label="Search">${icon("search")}</button>
+            <button class="b-icon-btn b-header__account" type="button" data-account aria-label="Account">${icon("user")}</button>
             <button class="b-icon-btn" type="button" data-open="bag" aria-label="Shopping bag">${icon("bag")}<span class="b-count" data-bag-count></span></button>
           </div>
         </div>
@@ -232,13 +221,13 @@
       </aside>
       <aside class="b-drawer b-drawer--left" id="menu-drawer" aria-label="Menu" aria-hidden="true">
         <div class="b-drawer__head">
-          ${brandLockup()}
+          <span class="b-menu-logo">${fullLogo()}</span>
           <button class="b-icon-btn" type="button" data-close aria-label="Close menu">${icon("close")}</button>
         </div>
         <div class="b-drawer__body">
           <nav class="b-menu-links" aria-label="Mobile">
+            <a href="index.html"${page === "home" ? ' aria-current="page"' : ""}>Home${icon("arrow")}</a>
             ${NAV.map((n) => `<a href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}${icon("arrow")}</a>`).join("")}
-            <a href="shop.html?cat=dresses">Abayas & Dresses${icon("arrow")}</a>
           </nav>
         </div>
         <div class="b-drawer__foot">
@@ -281,6 +270,7 @@
 
     renderBagCount();
     renderDrawer();
+    wireHeader();
     wireOverlays();
   }
 
@@ -290,7 +280,6 @@
       el.dataset.count = bag.count();
     });
   }
-
 
   /* ---------- Overlays: drawers, search, modal ---------- */
   let openPanel = null;
@@ -318,6 +307,10 @@
     document.body.classList.remove("is-locked");
     openPanel = null;
     if (lastFocus) lastFocus.focus();
+  }
+
+  function wireHeader() {
+    $("[data-account]").addEventListener("click", () => toast("Accounts are coming soon — checkout works without one."));
   }
 
   function wireOverlays() {
@@ -459,22 +452,61 @@
   }
 
   /* ---------- Pages ---------- */
-  function renderHome() {
-    const newIn = [...D.products].sort((a, b) => b.added - a.added).slice(0, 4);
-    $("[data-new-in]").innerHTML = newIn.map(cardHtml).join("");
+  function heroCarousel() {
+    const root = $("[data-hero]");
+    const slides = $$("[data-slide]", root);
+    const dots = $$("[data-dot]", root);
+    let current = 0;
+    let timer;
+    const show = (i) => {
+      current = (i + slides.length) % slides.length;
+      slides.forEach((s, n) => {
+        const on = n === current;
+        s.classList.toggle("is-active", on);
+        s.toggleAttribute("inert", !on);
+        s.setAttribute("aria-hidden", !on);
+      });
+      dots.forEach((d, n) => {
+        d.classList.toggle("is-active", n === current);
+        if (n === current) d.setAttribute("aria-current", "true");
+        else d.removeAttribute("aria-current");
+      });
+    };
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const play = () => {
+      clearInterval(timer);
+      if (!still) timer = setInterval(() => show(current + 1), 7000);
+    };
+    dots.forEach((d) => d.addEventListener("click", () => {
+      show(Number(d.dataset.dot));
+      play();
+    }));
+    root.addEventListener("mouseenter", () => clearInterval(timer));
+    root.addEventListener("mouseleave", play);
+    root.addEventListener("focusin", () => clearInterval(timer));
+    play();
+  }
 
+  function renderShopIntro() {
     const covers = { sets: "assets/img/products/look-04.jpg", dresses: "assets/img/products/look-02.jpg", outerwear: "assets/img/products/look-10.jpg" };
     $("[data-cats]").innerHTML = D.categories
       .filter((c) => c.id !== "all")
       .map((c) => {
         const n = D.products.filter((p) => p.category === c.id).length;
         return `
-          <a class="b-cat" href="shop.html?cat=${c.id}">
+          <a class="b-cat" href="shop.html?cat=${c.id}#catalog">
             <img src="${covers[c.id]}" alt="" loading="lazy">
             <span class="b-cat__label"><span class="b-cat__name">${c.label}</span><span class="b-cat__count">${n} pieces</span></span>
           </a>`;
       })
       .join("");
+
+    const newIn = [...D.products].sort((a, b) => b.added - a.added).slice(0, 4);
+    $("[data-new-in]").innerHTML = newIn.map(cardHtml).join("");
+  }
+
+  function renderHome() {
+    heroCarousel();
 
     $("[data-reviews]").innerHTML = D.reviews
       .map((r) => `
@@ -493,6 +525,7 @@
   }
 
   function renderShop() {
+    renderShopIntro();
     const state = {
       cat: D.categories.some((c) => c.id === params.get("cat")) ? params.get("cat") : "all",
       shade: params.get("shade") || "",
@@ -537,7 +570,7 @@
       if (state.sort === "price-asc") list.sort((a, b) => a.price - b.price);
       if (state.sort === "price-desc") list.sort((a, b) => b.price - a.price);
 
-      $("[data-count]").textContent = `${list.length} ${list.length === 1 ? "piece" : "pieces"}${state.q ? ` for “${state.q}”` : ""}`;
+      $("[data-results-count]").textContent = `${list.length} ${list.length === 1 ? "piece" : "pieces"}${state.q ? ` for “${state.q}”` : ""}`;
       $("[data-grid]").innerHTML = list.length
         ? list.map(cardHtml).join("")
         : `<div style="grid-column:1/-1">${emptyHtml("Nothing matches yet", "Try another colour or clear your search — new pieces land every week.", "See everything")}</div>`;
@@ -567,6 +600,9 @@
     });
     $("[data-q-form]").addEventListener("submit", (e) => e.preventDefault());
     draw();
+    // The grids above are drawn by script, so jump to #catalog / #new once they exist.
+    const target = location.hash && document.getElementById(location.hash.slice(1));
+    if (target) requestAnimationFrame(() => target.scrollIntoView());
   }
 
   function renderProduct() {

@@ -29,6 +29,28 @@
   --gradient-glass: linear-gradient(180deg, rgb(255 255 255 / 0.72) 0%, rgb(255 255 255 / 0.52) 100%);
   --color-glass-edge: rgb(255 255 255 / 0.7);
 
+  /* ---------- Color: section tones (each band on a page gets its own) ---------- */
+  --tone-ivory: #fbf8f2;
+  --tone-white: #ffffff;
+  --tone-sand: #f2e9dc;
+  --tone-butter: #fbf1d2;
+  --tone-sage: #e8ebdf;
+  --tone-blush: #f6ebe4;
+  --tone-stone: #eee8de;
+  --tone-olive: #e3e0d0;
+
+  /* ---------- Color: header & hero (sampled from the hero reference) ---------- */
+  --color-header: #f8f5f0;
+  --color-nav: #535047;
+  --color-hero-title: #4c442e;
+  --color-hero-eyebrow: #675a46;
+  --color-hero-text: #6d604a;
+  --color-hero-cta: #ecc878;
+  --color-hero-cta-hover: #e3ba5f;
+  --color-hero-cta-text: #4a3c1a;
+  --color-hero-dot: #5b4f38;
+  --color-hero-wall: #ebdac6;
+
   /* ---------- Color: lines ---------- */
   --color-line: rgb(27 25 21 / 0.12);
   --color-line-faint: rgb(27 25 21 / 0.07);
@@ -50,6 +72,7 @@
   --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-logo: "Bodoni Moda", "Didot", Georgia, serif; /* logo lettering only */
+  --font-serif: "Gilda Display", "Didot", Georgia, serif; /* hero headline */
   --font-script: "Allura", "Snell Roundhand", cursive;
   --font-arabic: "Tajawal", "Geeza Pro", sans-serif;
 
@@ -89,7 +112,7 @@
   --space-20: 5rem;
   --gutter: clamp(1rem, 4vw, 3.5rem);
   --section: clamp(3.5rem, 8vw, 7rem);
-  --header-h: 4.5rem;
+  --header-h: clamp(6.25rem, 9.4vw, 9rem);
   --header-float: 0.625rem;
 
   --container-wide: 92rem;
