@@ -103,8 +103,6 @@
     <span class="b-logo-full" role="img" aria-label="Bata Shop — بطة شوب">
       ${monogram("b-logo-full__mark")}
       <span class="b-logo-full__name">BA${duck("b-brand__duck")}A</span>
-      <span class="b-logo-full__shop">Shop</span>
-      <span class="b-logo-full__ar">${S.nameAr}</span>
     </span>`;
 
   /* ---------- Bag ---------- */

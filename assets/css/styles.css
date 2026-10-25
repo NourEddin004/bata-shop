@@ -134,11 +134,6 @@ ol {
   letter-spacing: -0.01em;
 }
 
-.b-arabic {
-  font-family: var(--font-arabic);
-  direction: rtl;
-}
-
 .b-section-head {
   display: flex;
   flex-wrap: wrap;
@@ -319,30 +314,6 @@ ol {
   line-height: 1;
 }
 
-.b-logo-full__shop {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-family: var(--font-script);
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-.b-logo-full__shop::before,
-.b-logo-full__shop::after {
-  content: "";
-  width: 2.5rem;
-  height: var(--border-thin);
-  background: var(--color-ink-muted);
-}
-
-.b-logo-full__ar {
-  font-family: var(--font-arabic);
-  font-size: 1.6rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
 /* ========== Header: nav left, logo centred, tools right ========== */
 .b-header {
   position: sticky;
@@ -426,28 +397,12 @@ ol {
 }
 
 .b-header__logo .b-logo-full__mark {
-  width: clamp(1.9rem, 3.5vw, 3.4rem);
-  height: clamp(1.9rem, 3.5vw, 3.4rem);
+  width: clamp(2.6rem, 5vw, 4.75rem);
+  height: clamp(2.6rem, 5vw, 4.75rem);
 }
 
 .b-header__logo .b-logo-full__name {
-  font-size: clamp(0.95rem, 1.7vw, 1.6rem);
-}
-
-.b-header__logo .b-logo-full__shop {
-  font-size: clamp(0.8rem, 1.3vw, 1.25rem);
-}
-
-.b-header__logo .b-logo-full__ar {
-  font-size: clamp(0.75rem, 1.15vw, 1.1rem);
-  line-height: 1.1;
-}
-
-.b-header__logo .b-logo-full__shop::before,
-.b-header__logo .b-logo-full__shop::after,
-.b-menu-logo .b-logo-full__shop::before,
-.b-menu-logo .b-logo-full__shop::after {
-  width: 1.6em;
+  font-size: clamp(1.15rem, 2.1vw, 2rem);
 }
 
 .b-menu-logo .b-logo-full__mark {
@@ -457,11 +412,6 @@ ol {
 
 .b-menu-logo .b-logo-full__name {
   font-size: 1.05rem;
-}
-
-.b-menu-logo .b-logo-full__shop,
-.b-menu-logo .b-logo-full__ar {
-  font-size: 0.85rem;
 }
 
 @media (min-width: 30rem) {
