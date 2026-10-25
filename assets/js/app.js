@@ -454,7 +454,6 @@
     const root = $("[data-hero]");
     const slides = $$("[data-slide]", root);
     const dots = $$("[data-dot]", root);
-    const photos = $$("[data-photo]", root);
     let current = 0;
     let timer;
     const show = (i) => {
@@ -465,7 +464,6 @@
         s.toggleAttribute("inert", !on);
         s.setAttribute("aria-hidden", !on);
       });
-      photos.forEach((p, n) => p.classList.toggle("is-active", n === current));
       dots.forEach((d, n) => {
         d.classList.toggle("is-active", n === current);
         if (n === current) d.setAttribute("aria-current", "true");
@@ -487,6 +485,26 @@
     play();
   }
 
+  /* Lookbook wall: three columns of looks drifting up and down (desktop),
+     one row gliding sideways (phones). Each list is rendered twice so the loop is seamless. */
+  function lookWall() {
+    const look = (p, copy) => `
+      <a class="b-look" href="${productUrl(p)}"${copy ? ' tabindex="-1" aria-hidden="true"' : ""}>
+        <img src="${p.image}" alt="${copy ? "" : esc(p.name)}">
+        <span class="b-look__tag">${esc(p.name)} · ${money(p.price)}</span>
+      </a>`;
+    const loop = (list) => list.map((p) => look(p)).join("") + list.map((p) => look(p, true)).join("");
+
+    const cols = [0, 1, 2].map((c) => {
+      const list = D.products.filter((_, i) => i % 3 === c);
+      // Short columns borrow looks they don't already show, so nothing repeats back to back
+      for (const p of [...D.products.slice(c), ...D.products.slice(0, c)]) if (list.length < 4 && !list.includes(p)) list.push(p);
+      return list;
+    });
+    $("[data-wall]").innerHTML = cols.map((list) => `<div class="b-wall__col"><div class="b-wall__track">${loop(list)}</div></div>`).join("");
+    $("[data-strip]").innerHTML = `<div class="b-strip__track">${loop(D.products)}</div>`;
+  }
+
   function renderShopIntro() {
     const covers = { sets: "assets/img/products/look-04.jpg", dresses: "assets/img/products/look-02.jpg", outerwear: "assets/img/products/look-10.jpg" };
     $("[data-cats]").innerHTML = D.categories
@@ -506,6 +524,7 @@
   }
 
   function renderHome() {
+    lookWall();
     heroCarousel();
 
     $("[data-reviews]").innerHTML = D.reviews

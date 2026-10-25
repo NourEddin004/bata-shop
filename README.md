@@ -20,7 +20,7 @@ Then open http://127.0.0.1:5190.
 
 | File | What it shows |
 | --- | --- |
-| `index.html` | Full-width hero with three slides, trust strip, our story (About), how to order, reviews, Instagram strip |
+| `index.html` | Hero with three slides and a moving lookbook wall of every product, trust strip, our story (About), how to order, reviews, Instagram strip |
 | `shop.html` | Category tiles, new this week, then the catalog with category tabs, colour filters and search (`?cat=sets&shade=plum&q=coat`) |
 | `product.html?id=…` | Gallery, required size choice, size guide, quantity, details and related pieces |
 | `cart.html` | Full bag with free-delivery progress |
@@ -34,7 +34,7 @@ live in `localStorage`. Nothing is sent anywhere.
 
 - **Products, prices, cities, reviews, copy:** `assets/js/catalog.js`
 - **Colours, fonts, spacing:** `assets/css/tokens.css` (the only file with raw values). Page bands use `b-tone--white/cream/sand/ink` for the 60/30/10 split
-- **Hero:** text and slides in `index.html`; each slide shows one of the product photos in `assets/img/products/`
+- **Hero:** text and slides in `index.html`; the lookbook wall beside it is built from the products in `catalog.js` (`lookWall()` in `app.js`)
 - **Components:** `assets/css/styles.css` (`b-*` classes, `is-*` states)
 - **Logo:** redrawn as SVG in `assets/js/app.js` (`monogram()` and `duck()`), because Instagram
   only serves the original at 150 px. The original is kept at `assets/img/logo-instagram.jpg`

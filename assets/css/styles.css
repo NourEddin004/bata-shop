@@ -686,48 +686,126 @@ ol {
   background: var(--color-sand);
 }
 
-/* Their own look, standing in an arch with a deeper niche behind it */
-.b-hero__stage {
+/* Lookbook wall: the brand's own looks drifting in three columns */
+.b-hero__wall {
+  --wall-gap: clamp(0.6rem, 1.1vw, 1.1rem);
   grid-area: 1 / 2;
   display: grid;
-  place-items: center;
-  padding-block: clamp(2rem, 4vw, 4rem);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--wall-gap);
+  height: 100%;
+  padding-right: var(--gutter);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(transparent, black 14%, black 86%, transparent);
+  mask-image: linear-gradient(transparent, black 14%, black 86%, transparent);
 }
 
-.b-hero__arch {
+.b-wall__track {
+  display: grid;
+  gap: var(--wall-gap);
+  padding-bottom: var(--wall-gap); /* one gap per card, so -50% is exactly one full set */
+  animation: b-wall-up 52s linear infinite;
+}
+
+.b-wall__col:nth-child(2) .b-wall__track {
+  animation-name: b-wall-down;
+  animation-duration: 60s;
+  animation-delay: -24s;
+}
+
+.b-wall__col:nth-child(3) .b-wall__track {
+  animation-duration: 46s;
+  animation-delay: -12s;
+}
+
+.b-hero__wall:hover .b-wall__track,
+.b-hero__wall:focus-within .b-wall__track,
+.b-hero__strip:hover .b-strip__track {
+  animation-play-state: paused;
+}
+
+@keyframes b-wall-up {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes b-wall-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.b-look {
   position: relative;
-  height: min(100%, 44rem);
-  aspect-ratio: 9 / 16;
-}
-
-.b-hero__arch::before {
-  content: "";
-  position: absolute;
-  inset: -6% -28% -12%;
-  border-radius: var(--radius-arch);
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
   background: var(--color-sand-deep);
 }
 
-.b-hero__frame {
-  position: relative;
-  height: 100%;
-  border-radius: var(--radius-arch);
-  overflow: hidden;
-  box-shadow: var(--shadow-float);
-}
-
-.b-hero__photo {
-  position: absolute;
-  inset: 0;
+.b-look img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity var(--duration-slow) var(--ease-out);
+  object-position: center 28%;
+  transition: transform var(--duration-slow) var(--ease-out);
 }
 
-.b-hero__photo.is-active {
+.b-look:hover img {
+  transform: scale(1.05);
+}
+
+.b-look__tag {
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  bottom: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateY(0.4rem);
+  transition: opacity var(--duration-base), transform var(--duration-base) var(--ease-out);
+}
+
+.b-look:hover .b-look__tag,
+.b-look:focus-visible .b-look__tag {
   opacity: 1;
+  transform: none;
+}
+
+/* Phones get one sideways row instead of the wall */
+.b-hero__strip {
+  display: none;
+}
+
+.b-strip__track {
+  display: flex;
+  gap: var(--space-3);
+  width: max-content;
+  padding-right: var(--space-3);
+  animation: b-strip 45s linear infinite;
+}
+
+.b-strip__track .b-look {
+  flex: none;
+  width: 9.5rem;
+}
+
+@keyframes b-strip {
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .b-hero__inner {
@@ -859,14 +937,17 @@ ol {
     padding: var(--space-8) var(--gutter) var(--space-6);
   }
 
-  .b-hero__stage {
-    grid-area: 2 / 1;
-    padding: var(--space-4) var(--gutter) var(--space-12);
+  .b-hero__wall {
+    display: none;
   }
 
-  .b-hero__arch {
-    height: auto;
-    width: min(68%, 18rem);
+  .b-hero__strip {
+    display: block;
+    grid-area: 2 / 1;
+    padding-bottom: var(--space-10);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
   }
 
   .b-hero br {
