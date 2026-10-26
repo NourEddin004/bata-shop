@@ -66,6 +66,7 @@
     pin: '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     download: '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',
+    lock: '<rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
     user: '<circle cx="12" cy="8" r="3.8"/><path d="M4.8 20.2c.9-3.8 3.7-5.9 7.2-5.9s6.3 2.1 7.2 5.9"/>'
   };
   const icon = (name, cls = "") => `<svg class="b-icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
@@ -115,7 +116,10 @@
       <span class="b-logo-full__name">BA${duck("b-brand__duck")}A</span>
     </span>`;
 
-  /* ---------- Bag ---------- */
+  /* ---------- Bag ----------
+     A line can be added from a product card before a size is chosen (size: null).
+     The size is picked in the cart, and checkout stays locked until every line has one. */
+  let onBagChange = null;
   const bag = {
     lines: storage.get("bata.bag", []),
     save() {
@@ -123,17 +127,33 @@
       renderBagCount();
       renderDrawer();
       if (page === "cart") renderCartPage();
+      if (onBagChange) onBagChange();
+    },
+    find(id, size) {
+      return this.lines.find((l) => l.id === id && (l.size || null) === (size || null));
     },
     add(id, size, qty) {
-      const line = this.lines.find((l) => l.id === id && l.size === size);
+      const line = this.find(id, size);
       if (line) line.qty = Math.min(S.maxQty, line.qty + qty);
-      else this.lines.push({ id, size, qty: Math.min(S.maxQty, qty) });
+      else this.lines.push({ id, size: size || null, qty: Math.min(S.maxQty, qty) });
       this.save();
     },
+    // Product page: put exactly this size and quantity in the bag, reusing a line added without a size
     set(id, size, qty) {
-      const line = this.lines.find((l) => l.id === id && l.size === size);
-      if (line) line.qty = Math.min(S.maxQty, qty);
-      else this.lines.push({ id, size, qty: Math.min(S.maxQty, qty) });
+      const line = this.find(id, size) || this.find(id, null);
+      if (line) {
+        line.size = size;
+        line.qty = Math.min(S.maxQty, qty);
+      } else this.lines.push({ id, size, qty: Math.min(S.maxQty, qty) });
+      this.save();
+    },
+    setSize(index, size) {
+      const line = this.lines[index];
+      const twin = size && this.lines.find((l, i) => i !== index && l.id === line.id && l.size === size);
+      if (twin) {
+        twin.qty = Math.min(S.maxQty, twin.qty + line.qty);
+        this.lines.splice(index, 1);
+      } else line.size = size || null;
       this.save();
     },
     setQty(index, qty) {
@@ -150,29 +170,26 @@
       this.save();
     },
     items() {
-      return this.lines.map((l) => ({ ...l, product: byId(l.id) })).filter((l) => l.product);
+      return this.lines.map((l, index) => ({ ...l, index, product: byId(l.id) })).filter((l) => l.product);
     },
     count() {
       return this.items().reduce((n, l) => n + l.qty, 0);
     },
     subtotal() {
       return this.items().reduce((n, l) => n + l.qty * l.product.price, 0);
+    },
+    missingSizes() {
+      return this.items().filter((l) => !l.size).length;
     }
   };
 
   /* ---------- Shared chrome ---------- */
   const NAV = [
-    { href: "shop.html", label: "Shop", page: "shop", header: true },
-    { href: "shop.html?cat=new", label: "New In", page: "new", header: true },
-    { href: "index.html#story", label: "About", page: "about", header: true },
-    { href: "contact.html", label: "Visit us", page: "contact" }
+    { href: "index.html", label: "Home", page: "home" },
+    { href: "shop.html", label: "Shop", page: "shop" }
   ];
 
-  const isCurrent = (item) => {
-    if (page === "shop" && item.page === "new") return params.get("cat") === "new";
-    if (page === "shop" && item.page === "shop") return params.get("cat") !== "new";
-    return item.page === page;
-  };
+  const isCurrent = (item) => item.page === page;
 
   function renderChrome() {
     const header = document.createElement("div");
@@ -182,7 +199,7 @@
         <div class="b-header__bar">
           <button class="b-icon-btn b-header__menu" type="button" data-open="menu" aria-label="Open menu">${icon("menu")}</button>
           <nav class="b-header__nav" aria-label="Main">
-            ${NAV.filter((n) => n.header).map((n) => `<a class="b-header__link" href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}</a>`).join("")}
+            ${NAV.map((n) => `<a class="b-header__link" href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}</a>`).join("")}
           </nav>
           <a class="b-header__logo" href="index.html" aria-label="Bata Shop home">${fullLogo()}</a>
           <div class="b-header__tools">
@@ -244,8 +261,7 @@
         </div>
         <div class="b-drawer__body">
           <nav class="b-menu-links" aria-label="Mobile">
-            <a href="index.html"${page === "home" ? ' aria-current="page"' : ""}>Home${icon("arrow")}</a>
-            ${NAV.map((n) => `<a href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}${icon("arrow")}</a>`).join("")}
+            ${NAV.map((n) => `<a href="${n.href}"${isCurrent(n) ? ' aria-current="page"' : ""}>${n.label}</a>`).join("")}
           </nav>
         </div>
         <div class="b-drawer__foot">
@@ -372,14 +388,26 @@
   }
 
   /* ---------- Bag drawer ---------- */
-  function lineHtml(l, i, size = "") {
+  function sizeSelect(l, cls = "") {
     const p = l.product;
+    return `
+      <label class="b-sr" for="line-size-${l.index}">Size for ${esc(p.name)}</label>
+      <select class="b-select b-line__size${l.size ? "" : " is-missing"} ${cls}" id="line-size-${l.index}" data-line-size="${l.index}">
+        <option value="">Choose size</option>
+        ${p.sizes.map((sz) => `<option${sz === l.size ? " selected" : ""}>${sz}</option>`).join("")}
+      </select>`;
+  }
+
+  function lineHtml(l, size = "") {
+    const p = l.product;
+    const i = l.index;
     return `
       <div class="b-line">
         <a class="b-line__media" href="${productUrl(p)}"><img src="${p.image}" alt="${esc(p.name)}"></a>
         <div class="b-line__info">
           <a class="b-line__name" href="${productUrl(p)}">${esc(p.name)}</a>
-          <span class="b-line__meta">Size ${esc(l.size)} · ${shadeLabel(p.shade)}</span>
+          <span class="b-line__meta">${shadeLabel(p.shade)}</span>
+          ${sizeSelect(l)}
           <div class="b-line__actions">
             <div class="b-stepper b-stepper--${size || "sm"}">
               <button type="button" data-qty="${i}" data-step="-1" aria-label="Fewer">−</button>
@@ -415,6 +443,16 @@
       </div>`;
   }
 
+  // Checkout opens once every piece in the bag has a size
+  function checkoutButton() {
+    const missing = bag.missingSizes();
+    return missing
+      ? `<p class="b-summary__alert" role="status">Choose a size for ${missing === 1 ? "1 piece" : missing + " pieces"} to check out.</p>
+         <button class="b-btn b-btn--duck b-btn--block" type="button" disabled>Checkout</button>`
+      : `<p class="b-summary__note">Delivery is worked out at checkout. Pay cash when it arrives.</p>
+         <a class="b-btn b-btn--duck b-btn--block" href="checkout.html">Checkout</a>`;
+  }
+
   function renderDrawer() {
     const body = $("[data-drawer-body]");
     const foot = $("[data-drawer-foot]");
@@ -426,11 +464,10 @@
       return;
     }
     foot.hidden = false;
-    body.innerHTML = progressHtml() + items.map((l, i) => lineHtml(l, i)).join("");
+    body.innerHTML = progressHtml() + items.map((l) => lineHtml(l)).join("");
     foot.innerHTML = `
       <div class="b-summary__row b-summary__row--total"><span>Subtotal</span><span>${money(bag.subtotal())}</span></div>
-      <p class="b-summary__note">Delivery is worked out at checkout. Pay cash when it arrives.</p>
-      <a class="b-btn b-btn--duck b-btn--block" href="checkout.html">Checkout</a>
+      ${checkoutButton()}
       <button class="b-btn b-btn--primary b-btn--block" type="button" data-close>Continue shopping</button>`;
   }
 
@@ -448,23 +485,17 @@
     }
   });
 
-  document.addEventListener("submit", (e) => {
-    const form = e.target.closest("[data-card-buy]");
-    if (!form) return;
-    e.preventDefault();
-    const select = form.elements.size;
-    if (!select.value) {
-      select.classList.add("is-invalid");
-      select.focus();
-      toast("Pick a size first");
-      return;
-    }
-    bag.add(form.dataset.cardBuy, select.value, 1);
+  // Product card: add now, choose the size later in the cart
+  document.addEventListener("click", (e) => {
+    const add = e.target.closest("[data-add]");
+    if (!add) return;
+    bag.add(add.dataset.add, null, 1);
     open("bag-drawer");
   });
 
   document.addEventListener("change", (e) => {
-    if (e.target.matches("[data-card-buy] select")) e.target.classList.remove("is-invalid");
+    const sel = e.target.closest("[data-line-size]");
+    if (sel) bag.setSize(Number(sel.dataset.lineSize), sel.value);
   });
 
   /* ---------- Product card ---------- */
@@ -475,18 +506,10 @@
           <img src="${p.image}" alt="${esc(p.name)}" loading="lazy">
           ${p.badge ? `<span class="b-badge b-card__badge${p.badge === "New" ? " b-badge--duck" : ""}">${p.badge}</span>` : ""}
         </a>
-        <div class="b-card__info">
-          <a class="b-card__name" href="${productUrl(p)}">${esc(p.name)}</a>
+        <div class="b-card__foot">
           <span class="b-card__price">${money(p.price)}</span>
+          <button class="b-btn b-btn--primary b-card__add" type="button" data-add="${p.id}" aria-label="Add ${esc(p.name)} to cart">Add to cart</button>
         </div>
-        <form class="b-card__buy" data-card-buy="${p.id}">
-          <label class="b-sr" for="size-${p.id}">Size for ${esc(p.name)}</label>
-          <select class="b-select b-card__size" id="size-${p.id}" name="size">
-            <option value="">Size</option>
-            ${p.sizes.map((sz) => `<option>${sz}</option>`).join("")}
-          </select>
-          <button class="b-btn b-btn--primary b-card__add" type="submit">Add to cart</button>
-        </form>
       </article>`;
   }
 
@@ -651,7 +674,7 @@
             <output data-pdp-qty aria-label="Quantity">1</output>
             <button type="button" data-pdp-step="1" aria-label="More">+</button>
           </div>
-          <button class="b-btn b-btn--duck" type="submit">Proceed to checkout ${icon("arrow")}</button>
+          <button class="b-btn b-btn--duck" type="submit">Proceed to checkout</button>
         </div>
         <ul class="b-pdp__perks">
           <li>${icon("truck")} Delivered in 1–2 days in Amman & Zarqa, 2–4 days elsewhere</li>
@@ -712,8 +735,8 @@
     }
     root.innerHTML = `
       <div class="b-cart-page">
-        <div>${progressHtml()}${items.map((l, i) => lineHtml(l, i, "md")).join("")}</div>
-        ${summaryHtml(null, `<a class="b-btn b-btn--duck b-btn--block" href="checkout.html">Checkout</a><a class="b-btn b-btn--primary b-btn--block" href="shop.html">Continue shopping</a>`)}
+        <div>${progressHtml()}${items.map((l) => lineHtml(l, "md")).join("")}</div>
+        ${summaryHtml(null, `${checkoutButton()}<a class="b-btn b-btn--primary b-btn--block" href="shop.html">Continue shopping</a>`)}
       </div>`;
   }
 
@@ -733,17 +756,18 @@
         ${withItems ? bag.items().map((l) => `
           <div class="b-mini">
             <span class="b-mini__media"><img src="${l.product.image}" alt=""><span class="b-mini__qty">${l.qty}</span></span>
-            <span>${esc(l.product.name)}<small>Size ${esc(l.size)}</small></span>
+            <span>${esc(l.product.name)}${l.size ? `<small>Size ${esc(l.size)}</small>` : sizeSelect(l, "b-mini__size")}</span>
             <span>${money(l.product.price * l.qty)}</span>
           </div>`).join("") : ""}
         <div class="b-summary__row"><span>Subtotal</span><span>${money(sub)}</span></div>
-        <div class="b-summary__row"><span>Delivery</span><span>${cityId === "pickup" ? "Pick up · free" : freeNow ? "Free" : fee == null ? "Choose a city" : money(fee)}</span></div>
+        <div class="b-summary__row"><span>Delivery</span><span>${cityId === "pickup" ? "Pick up · free" : freeNow ? "Free" : cityId == null ? "At checkout" : fee == null ? "Choose a city" : money(fee)}</span></div>
         <div class="b-summary__row b-summary__row--total"><span>Total</span><span>${money(sub + (fee || 0))}</span></div>
-        <p class="b-summary__note">Cash on delivery. Prices in Jordanian dinars.</p>
+        <p class="b-summary__note">Prices in Jordanian dinars.</p>
         ${actions}
       </aside>`;
   }
 
+  /* Checkout: three short steps — who, where, how to pay — with errors shown right under each field */
   function renderCheckout() {
     const root = $("[data-checkout]");
     if (params.get("done")) return renderConfirmation(root);
@@ -751,98 +775,183 @@
       root.innerHTML = emptyHtml("Nothing to check out", "Your bag is empty. Add a piece first, then come back here.");
       return;
     }
+    const err = (name, text) => `<p class="b-field__error" data-err="${name}" hidden>${text}</p>`;
 
     root.innerHTML = `
       <div class="b-checkout">
-        <form class="b-form" data-order novalidate>
-          <fieldset class="b-fieldset">
-            <legend>Your details</legend>
-            <div class="b-field"><label class="b-field__label" for="f-name">Full name</label><input class="b-input" id="f-name" name="name" autocomplete="name" required></div>
-            <div class="b-fieldset__row">
-              <div class="b-field"><label class="b-field__label" for="f-phone">Mobile number</label>
-                <div class="b-field__group"><span class="b-field__prefix">+962</span><input class="b-input" id="f-phone" name="phone" type="tel" inputmode="numeric" placeholder="7X XXX XXXX" autocomplete="tel-national" required pattern="7[789]\\d{7}"></div>
-              </div>
-              <div class="b-field"><label class="b-field__label" for="f-email">Email <span style="font-weight:400">(optional, for a receipt)</span></label><input class="b-input" id="f-email" name="email" type="email" autocomplete="email"></div>
+        <form class="b-co" id="order-form" data-order novalidate>
+          <section class="b-co__step">
+            <h2 class="b-co__title"><span class="b-co__num">1</span>Your details</h2>
+            <div class="b-field">
+              <label class="b-field__label" for="f-name">Full name</label>
+              <input class="b-input" id="f-name" name="name" autocomplete="name" placeholder="e.g. Sara Ahmad" required>
+              ${err("name", "Please enter your name.")}
             </div>
-          </fieldset>
-          <fieldset class="b-fieldset">
-            <legend>Delivery address</legend>
-            <div class="b-fieldset__row">
-              <div class="b-field"><label class="b-field__label" for="f-city">City</label>
-                <select class="b-select" id="f-city" name="city" required><option value="">Choose a city</option>${D.cities.map((c) => `<option value="${c.id}">${c.label}</option>`).join("")}</select>
+            <div class="b-field">
+              <label class="b-field__label" for="f-phone">Mobile number</label>
+              <div class="b-field__group">
+                <span class="b-field__prefix"><img src="assets/img/pay/jordan-flag.svg" alt="Jordan" width="20" height="10"> +962</span>
+                <input class="b-input" id="f-phone" name="phone" type="tel" inputmode="numeric" placeholder="79 123 4567" autocomplete="tel-national" maxlength="12" required>
               </div>
-              <div class="b-field"><label class="b-field__label" for="f-area">Area</label>
-                <select class="b-select" id="f-area" name="area" required disabled><option value="">Choose a city first</option></select>
+              ${err("phone", "Enter a Jordanian mobile number, like 79 123 4567.")}
+            </div>
+          </section>
+
+          <section class="b-co__step">
+            <h2 class="b-co__title"><span class="b-co__num">2</span>Delivery</h2>
+            <div class="b-choice" role="radiogroup" aria-label="Delivery method">
+              <label class="b-choice__opt">
+                <input type="radio" name="method" value="home" checked>
+                <span class="b-choice__body">${icon("truck", "b-choice__icon")}<strong>Home delivery</strong><small>1–4 days · from ${money(2)}</small></span>
+              </label>
+              <label class="b-choice__opt">
+                <input type="radio" name="method" value="pickup">
+                <span class="b-choice__body">${icon("store", "b-choice__icon")}<strong>Pick up</strong><small>Zarqa or Amman · free</small></span>
+              </label>
+            </div>
+            <div class="b-co__fields" data-home>
+              <div class="b-fieldset__row">
+                <div class="b-field">
+                  <label class="b-field__label" for="f-city">City</label>
+                  <select class="b-select" id="f-city" name="city" autocomplete="address-level1"><option value="">Choose city</option>${D.cities.map((c) => `<option value="${c.id}">${c.label}</option>`).join("")}</select>
+                  ${err("city", "Choose your city.")}
+                </div>
+                <div class="b-field">
+                  <label class="b-field__label" for="f-area">Area</label>
+                  <select class="b-select" id="f-area" name="area" disabled><option value="">Choose city first</option></select>
+                  ${err("area", "Choose your area.")}
+                </div>
+              </div>
+              <div class="b-field">
+                <label class="b-field__label" for="f-street">Street and building</label>
+                <input class="b-input" id="f-street" name="street" autocomplete="street-address" placeholder="Street name, building number, floor">
+                ${err("street", "Tell us the street and building.")}
+              </div>
+              <details class="b-co__note">
+                <summary>Add a note for the driver</summary>
+                <textarea class="b-textarea" name="notes" aria-label="Note for the driver" placeholder="e.g. Call me when you arrive"></textarea>
+              </details>
+            </div>
+            <div class="b-co__fields" data-pickup hidden>
+              <div class="b-choice" role="radiogroup" aria-label="Branch">
+                ${S.branches.map((br, i) => `
+                  <label class="b-choice__opt">
+                    <input type="radio" name="branch" value="${br.name}"${i ? "" : " checked"}>
+                    <span class="b-choice__body">${icon("pin", "b-choice__icon")}<strong>${br.name}</strong><small>${br.detail.replace(/^Branch \d · /, "")}</small></span>
+                  </label>`).join("")}
               </div>
             </div>
-            <div class="b-field"><label class="b-field__label" for="f-street">Street, building, floor</label><input class="b-input" id="f-street" name="street" autocomplete="street-address" required></div>
-            <div class="b-field"><label class="b-field__label" for="f-notes">Notes for the driver <span style="font-weight:400">(optional)</span></label><textarea class="b-textarea" id="f-notes" name="notes"></textarea></div>
-          </fieldset>
-          <fieldset class="b-fieldset">
-            <legend>Payment</legend>
-            <label class="b-option"><input type="radio" name="pay" value="cod" checked><span class="b-option__text"><strong>Cash on delivery</strong><small>Pay the driver when your order arrives</small></span>${icon("cash")}</label>
-            <label class="b-option"><input type="radio" name="pay" value="cliq"><span class="b-option__text"><strong>CliQ transfer</strong><small>We'll send our CliQ alias on WhatsApp to confirm</small></span>${icon("phone")}</label>
-            <label class="b-option"><input type="radio" name="pay" value="pickup"><span class="b-option__text"><strong>Pick up at a branch</strong><small>Zarqa or Amman — pay in store</small></span>${icon("store")}</label>
-          </fieldset>
-          <button class="b-btn b-btn--primary b-btn--block" type="submit">Place order</button>
-          <p class="b-summary__note">This is a design mockup — no order is sent and nothing leaves your browser.</p>
+          </section>
+
+          <section class="b-co__step">
+            <h2 class="b-co__title"><span class="b-co__num">3</span>Payment</h2>
+            <div class="b-choice" role="radiogroup" aria-label="Payment">
+              <label class="b-choice__opt">
+                <input type="radio" name="pay" value="cash" checked>
+                <span class="b-choice__body">${icon("cash", "b-choice__icon")}<strong data-cash-title>Cash on delivery</strong><small data-cash-note>Pay the driver when it arrives</small></span>
+              </label>
+              <label class="b-choice__opt">
+                <input type="radio" name="pay" value="cliq">
+                <span class="b-choice__body"><img class="b-choice__logo" src="assets/img/pay/cliq.svg" alt="CliQ"><strong>Bank transfer</strong><small>Instant, from your bank app</small></span>
+              </label>
+            </div>
+          </section>
+
+          <button class="b-btn b-btn--duck b-btn--block b-co__place" type="submit">Place order</button>
+          <ul class="b-co__trust">
+            <li>${icon("lock")} No account needed</li>
+            <li>${icon("phone")} We call to confirm</li>
+            <li>${icon("swap")} Exchange within 3 days</li>
+          </ul>
         </form>
-        <div data-summary-slot>${summaryHtml("", "", true)}</div>
+        <div data-summary-slot></div>
+      </div>
+      <div class="b-co__bar">
+        <span>Total <strong data-bar-total></strong></span>
+        <button class="b-btn b-btn--duck" type="submit" form="order-form">Place order</button>
       </div>`;
 
     const form = $("[data-order]");
     const city = $("#f-city");
     const area = $("#f-area");
-    const pay = () => form.elements.pay.value;
+    const value = (name) => form.elements[name].value;
+    const pickup = () => value("method") === "pickup";
+    const fee = () => (pickup() ? 0 : deliveryFee(city.value));
+
     const refresh = () => {
-      $("[data-summary-slot]").innerHTML = summaryHtml(pay() === "pickup" ? "pickup" : city.value, "", true);
+      $("[data-summary-slot]").innerHTML = summaryHtml(pickup() ? "pickup" : city.value, "", true);
+      $("[data-bar-total]").textContent = money(bag.subtotal() + (fee() || 0));
+      $("[data-home]").hidden = pickup();
+      $("[data-pickup]").hidden = !pickup();
+      $("[data-cash-title]").textContent = pickup() ? "Pay at the branch" : "Cash on delivery";
+      $("[data-cash-note]").textContent = pickup() ? "Cash or card when you collect it" : "Pay the driver when it arrives";
     };
+    onBagChange = () => (bag.items().length ? refresh() : renderCheckout());
+
     city.addEventListener("change", () => {
       const c = D.cities.find((x) => x.id === city.value);
       area.disabled = !c;
-      area.innerHTML = c ? `<option value="">Choose an area</option>` + c.areas.map((a) => `<option>${esc(a)}</option>`).join("") : `<option value="">Choose a city first</option>`;
-      refresh();
+      area.innerHTML = c ? `<option value="">Choose area</option>` + c.areas.map((a) => `<option>${esc(a)}</option>`).join("") : `<option value="">Choose city first</option>`;
     });
     form.addEventListener("change", (e) => {
-      if (e.target.name === "pay") refresh();
-      if (e.target.classList) e.target.classList.remove("is-invalid");
+      refresh();
+      showError(e.target.name, false);
     });
+    form.addEventListener("input", (e) => showError(e.target.name, false));
+
+    function showError(name, on) {
+      const box = $(`[data-err="${name}"]`, form);
+      if (!box) return;
+      box.hidden = !on;
+      form.elements[name].classList.toggle("is-invalid", on);
+      form.elements[name].setAttribute("aria-invalid", on);
+    }
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-      const pickup = pay() === "pickup";
-      const required = ["name", "phone", ...(pickup ? [] : ["city", "area", "street"])];
-      let firstBad = null;
-      $$(".is-invalid", form).forEach((x) => x.classList.remove("is-invalid"));
-      required.forEach((n) => {
-        const el = form.elements[n];
-        if (!el.value.trim() || !el.checkValidity()) {
-          el.classList.add("is-invalid");
-          firstBad = firstBad || el;
-        }
+      const phone = value("phone").replace(/\D/g, "").replace(/^0/, "");
+      const checks = {
+        name: value("name").trim().length > 1,
+        phone: /^7[789]\d{7}$/.test(phone),
+        ...(pickup() ? {} : { city: !!value("city"), area: !!value("area"), street: value("street").trim().length > 2 })
+      };
+      let first = null;
+      Object.entries(checks).forEach(([name, ok]) => {
+        showError(name, !ok);
+        if (!ok && !first) first = form.elements[name];
       });
-      if (firstBad) {
-        firstBad.focus();
-        toast(firstBad.name === "phone" ? "Enter a Jordanian mobile, like 79 123 4567" : "A few details are missing");
+      if (first) {
+        first.focus();
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
-      const fee = pickup ? 0 : deliveryFee(city.value);
+      if (bag.missingSizes()) {
+        toast("Choose a size for every piece in your order");
+        $("[data-summary-slot]").scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      const cityLabel = pickup() ? "" : D.cities.find((c) => c.id === value("city")).label;
       const order = {
         number: "BATA-" + Math.floor(100000 + Math.random() * 900000),
         date: new Date().toISOString(),
-        name: form.elements.name.value.trim(),
-        phone: "+962 " + form.elements.phone.value.trim(),
-        address: pickup ? "" : [form.elements.street.value.trim(), form.elements.area.value, D.cities.find((c) => c.id === city.value).label].join(", "),
-        city: pickup ? "Branch pickup" : D.cities.find((c) => c.id === city.value).label,
+        name: value("name").trim(),
+        phone: "+962 " + phone,
+        method: value("method"),
+        branch: pickup() ? value("branch") : "",
+        address: pickup() ? "" : [value("street").trim(), value("area"), cityLabel].join(", "),
+        city: pickup() ? `Pick up · ${value("branch")} branch` : cityLabel,
         items: bag.items().map((l) => ({ name: l.product.name, size: l.size, qty: l.qty, price: l.product.price, image: l.product.image })),
         subtotal: bag.subtotal(),
-        fee,
-        pay: pay()
+        fee: fee() || 0,
+        pay: value("pay")
       };
       storage.set("bata.lastOrder", order);
+      onBagChange = null;
       bag.clear();
       location.href = "checkout.html?done=1";
     });
+
+    refresh();
   }
 
   function renderConfirmation(root) {
@@ -852,7 +961,7 @@
       root.innerHTML = emptyHtml("No recent order", "We couldn't find an order on this device.");
       return;
     }
-    const payText = { cod: "Pay cash when it arrives.", cliq: "We'll message you on WhatsApp with our CliQ alias.", pickup: "We'll message you when it's ready at the branch." }[o.pay];
+    const payText = o.pay === "cliq" ? "We'll send you our CliQ alias to complete the transfer." : o.method === "pickup" ? `We'll let you know when it's ready at the ${esc(o.branch)} branch.` : "Pay cash when it arrives.";
     root.innerHTML = `
       <div class="b-confirm">
         <span class="b-confirm__mark">${duck()}</span>
@@ -877,7 +986,7 @@
     $("[data-receipt]").addEventListener("click", () => downloadReceipt(o));
   }
 
-  const PAY_LABELS = { cod: "Cash on delivery", cliq: "CliQ transfer", pickup: "Pay at the branch" };
+  const payLabel = (o) => (o.pay === "cliq" ? "CliQ transfer" : o.method === "pickup" ? "Pay at the branch" : "Cash on delivery");
 
   /* A one-page PDF receipt named after the order number. Falls back to a text file if the PDF library can't load. */
   async function downloadReceipt(o) {
@@ -895,7 +1004,7 @@
       doc.setDrawColor(247, 197, 43).setLineWidth(0.8).line(M, y, W - M, y);
       y += 8;
       doc.setTextColor(27).setFontSize(10);
-      [["Order number", o.number], ["Date", date], ["Customer", o.name], ["Phone", o.phone || ""], ["Delivery", o.address ? o.address : o.city], ["Payment", PAY_LABELS[o.pay] || ""]].forEach(([k, v]) => {
+      [["Order number", o.number], ["Date", date], ["Customer", o.name], ["Phone", o.phone || ""], ["Delivery", o.address || o.city], ["Payment", payLabel(o)]].forEach(([k, v]) => {
         doc.setTextColor(110).text(k, M, y);
         doc.setTextColor(27).text(String(v), M + 32, y, { maxWidth: W - M * 2 - 32 });
         y += 6.5;
@@ -927,7 +1036,7 @@
       doc.save(`receipt-${o.number}.pdf`);
     } catch (err) {
       console.warn("PDF receipt failed, saving a text receipt instead", err);
-      const lines = [`BATA SHOP — Receipt`, `Order: ${o.number}`, `Date: ${date}`, `Customer: ${o.name} ${o.phone || ""}`, `Delivery: ${o.address || o.city}`, `Payment: ${PAY_LABELS[o.pay] || ""}`, "", ...o.items.map((l) => `${l.qty} × ${l.name} (Size ${l.size}) — ${money(l.price * l.qty)}`), "", `Subtotal: ${money(o.subtotal)}`, `Delivery: ${o.fee ? money(o.fee) : "Free"}`, `Total: ${money(total)}`];
+      const lines = [`BATA SHOP — Receipt`, `Order: ${o.number}`, `Date: ${date}`, `Customer: ${o.name} ${o.phone || ""}`, `Delivery: ${o.address || o.city}`, `Payment: ${payLabel(o)}`, "", ...o.items.map((l) => `${l.qty} × ${l.name} (Size ${l.size}) — ${money(l.price * l.qty)}`), "", `Subtotal: ${money(o.subtotal)}`, `Delivery: ${o.fee ? money(o.fee) : "Free"}`, `Total: ${money(total)}`];
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/plain" }));
       a.download = `receipt-${o.number}.txt`;

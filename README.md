@@ -21,10 +21,10 @@ Then open http://127.0.0.1:5190.
 | File | What it shows |
 | --- | --- |
 | `index.html` | Centred hero with three looks fanned out like photo prints, trust strip, our story (About), how to order, reviews, Instagram strip |
-| `shop.html` | The collection: category tabs (All, New in, Sets, Abayas & Dresses, Coats & Jackets), colour and size filters, search, and product cards with size + Add to cart (`?cat=new&shade=navy&size=XL&q=coat`) |
+| `shop.html` | The collection: category tabs (All, New in, Sets, Abayas & Dresses, Coats & Jackets), colour and size filters, search, and product cards (image, price, Add to cart) (`?cat=new&shade=navy&size=XL&q=coat`) |
 | `product.html?id=…` | Gallery, size choice (sold-out sizes crossed out), size guide, quantity, Proceed to checkout, details and related pieces |
-| `cart.html` | Full bag with free-delivery progress |
-| `checkout.html` | Jordan city → area address, +962 phone, delivery by city, cash on delivery / CliQ / branch pickup, confirmation with a PDF receipt download |
+| `cart.html` | Full bag with free-delivery progress; each piece gets its size here, and checkout unlocks once every piece has one |
+| `checkout.html` | Three steps: name + mobile (+962), home delivery (city → area → street) or branch pickup, cash or CliQ; confirmation with a PDF receipt download |
 | `contact.html` | Branches (Zarqa, Amman), FAQ |
 
 The bag drawer, search panel, menu and toasts are on every page. The bag and last order
@@ -36,6 +36,7 @@ live in `localStorage`. Nothing is sent anywhere.
 - **Colours, fonts, spacing:** `assets/css/tokens.css` (the only file with raw values). Page bands use `b-tone--white/cream/sand/ink` for the 60/30/10 split
 - **Hero:** all in `index.html`; each print (`b-print`) links to a product — swap the three looks there
 - **Components:** `assets/css/styles.css` (`b-*` classes, `is-*` states)
+- **Payment logos:** `assets/img/pay/` (CliQ logo from JoPACC, Jordan flag)
 - **Logo:** redrawn as SVG in `assets/js/app.js` (`monogram()` and `duck()`), because Instagram
   only serves the original at 150 px. The original is kept at `assets/img/logo-instagram.jpg`
   (also the favicon).
