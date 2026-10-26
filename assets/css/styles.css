@@ -676,158 +676,92 @@ ol {
   text-underline-offset: 0.2em;
 }
 
-/* ========== Hero: full-bleed photo, copy on the left, slide dots ========== */
+/* ========== Hero: one still headline with photo pills set between the words ========== */
 .b-hero {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: max(34rem, min(57.2vw, calc(100svh - var(--header-h))));
-  overflow: hidden;
+  padding: clamp(2.5rem, 7vw, 6.5rem) var(--gutter) clamp(2.5rem, 6vw, 5.5rem);
   background: var(--color-sand);
 }
 
-/* Lookbook wall: a still collage of the brand's own looks, middle column set higher */
-.b-hero__wall {
-  --wall-gap: clamp(0.6rem, 1.1vw, 1.1rem);
-  grid-area: 1 / 2;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--wall-gap);
-  height: 100%;
-  padding-right: var(--gutter);
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(transparent, black 10%, black 90%, transparent);
-  mask-image: linear-gradient(transparent, black 10%, black 90%, transparent);
-}
-
-.b-wall__col {
-  display: grid;
-  align-content: start;
-  gap: var(--wall-gap);
-  margin-top: 12%;
-}
-
-.b-wall__col:nth-child(2) {
-  margin-top: -8%;
-}
-
-.b-look {
-  position: relative;
-  display: block;
-  aspect-ratio: 3 / 4;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-sand-deep);
-}
-
-.b-look img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 28%;
-  transition: transform var(--duration-slow) var(--ease-out);
-}
-
-.b-look:hover img {
-  transform: scale(1.05);
-}
-
-.b-look__tag {
-  position: absolute;
-  left: var(--space-2);
-  right: var(--space-2);
-  bottom: var(--space-2);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0;
-  transform: translateY(0.4rem);
-  transition: opacity var(--duration-base), transform var(--duration-base) var(--ease-out);
-}
-
-.b-look:hover .b-look__tag,
-.b-look:focus-visible .b-look__tag {
-  opacity: 1;
-  transform: none;
-}
-
-/* Phones get one swipeable row instead of the wall */
-.b-hero__strip {
-  display: none;
-}
-
-
-.b-hero__inner {
-  grid-area: 1 / 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  padding: 0 var(--gutter) 6.5vw;
-}
-
-.b-hero__slides {
-  display: grid;
-}
-
-.b-hero__slide {
-  grid-area: 1 / 1;
-  display: grid;
-  justify-items: start;
-  opacity: 0;
-  transform: translateY(0.75rem);
-  pointer-events: none;
-  transition: opacity var(--duration-slow) var(--ease-out), transform var(--duration-slow) var(--ease-out);
-}
-
-.b-hero__slide.is-active {
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
-}
-
 .b-hero__eyebrow {
-  font-size: clamp(0.72rem, 1.1vw, 1.05rem);
+  font-size: clamp(0.72rem, 1vw, 0.95rem);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--color-ink-muted);
 }
 
 .b-hero__title {
-  margin-top: clamp(0.9rem, 1.8vw, 1.75rem);
+  margin-top: clamp(1rem, 2vw, 1.75rem);
   font-family: var(--font-serif);
-  font-size: clamp(2.4rem, 4.46vw, 4.5rem);
+  font-size: clamp(2.75rem, 8.6vw, 9.5rem);
   font-weight: 400;
-  line-height: 1.04;
-  letter-spacing: -0.005em;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
   color: var(--color-ink);
 }
 
+/* A look, cropped to a pill, sitting on the text line */
+.b-pill {
+  display: inline-block;
+  width: 1.6em;
+  height: 0.78em;
+  margin-inline: 0.04em;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  vertical-align: -0.06em;
+  background: var(--color-sand-deep);
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.b-pill--wide {
+  width: 2.3em;
+}
+
+.b-pill img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center var(--y, 25%);
+}
+
+.b-pill:hover {
+  transform: rotate(-3deg) scale(1.04);
+}
+
+.b-hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-6) var(--space-10);
+  margin-top: clamp(1.75rem, 3.5vw, 3rem);
+  padding-top: clamp(1.25rem, 2vw, 1.75rem);
+  border-top: var(--border-thin) solid var(--color-line);
+}
+
 .b-hero__lead {
-  margin-top: clamp(0.9rem, 1.7vw, 1.6rem);
-  font-size: clamp(0.95rem, 1.28vw, 1.25rem);
-  line-height: 1.45;
-  letter-spacing: 0.01em;
+  max-width: 30rem;
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  line-height: 1.5;
   color: var(--color-ink-muted);
+}
+
+.b-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6);
 }
 
 .b-hero__cta {
   display: inline-flex;
   align-items: center;
-  gap: clamp(1rem, 1.8vw, 1.75rem);
+  gap: clamp(1rem, 1.6vw, 1.5rem);
   height: clamp(3rem, 3.5vw, 3.4rem);
-  margin-top: clamp(1.25rem, 1.8vw, 1.75rem);
-  padding-inline: clamp(1.5rem, 2.45vw, 2.4rem);
+  padding-inline: clamp(1.5rem, 2.4vw, 2.4rem);
   border-radius: var(--radius-full);
   background: var(--color-duck);
   color: var(--color-ink);
-  font-size: clamp(0.95rem, 1.17vw, 1.15rem);
+  font-size: clamp(0.95rem, 1.15vw, 1.1rem);
   font-weight: 500;
   letter-spacing: 0.02em;
   transition: background var(--duration-base);
@@ -847,78 +781,9 @@ ol {
   transform: translateX(0.2rem);
 }
 
-.b-hero__dots {
-  position: absolute;
-  left: var(--gutter);
-  bottom: clamp(1.25rem, 5.2vw, 5rem);
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-left: -0.5rem;
-}
-
-.b-hero__dot {
-  display: grid;
-  place-items: center;
-  height: 1.75rem;
-  padding: 0 0.5rem;
-}
-
-.b-hero__dot::after {
-  content: "";
-  width: 0.3rem;
-  height: 0.3rem;
-  border-radius: var(--radius-full);
-  background: var(--color-ink);
-  opacity: 0.45;
-  transition: opacity var(--duration-base);
-}
-
-.b-hero__dot.is-active::after {
-  width: 1.5rem;
-  height: 0.125rem;
-  opacity: 1;
-}
-
 @media (max-width: 47.99rem) {
-  .b-hero {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .b-hero__inner {
-    height: auto;
-    padding: var(--space-8) var(--gutter) var(--space-6);
-  }
-
-  .b-hero__wall {
+  .b-hero__title br {
     display: none;
-  }
-
-  .b-hero__strip {
-    display: flex;
-    grid-area: 2 / 1;
-    gap: var(--space-3);
-    padding: 0 var(--gutter) var(--space-10);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--gutter);
-    scrollbar-width: none;
-  }
-
-  .b-hero__strip .b-look {
-    flex: none;
-    width: 9.5rem;
-    scroll-snap-align: start;
-  }
-
-  .b-hero br {
-    display: none;
-  }
-
-  .b-hero__dots {
-    position: static;
-    margin-top: var(--space-4);
   }
 }
 

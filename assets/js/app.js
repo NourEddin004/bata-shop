@@ -450,54 +450,6 @@
   }
 
   /* ---------- Pages ---------- */
-  function heroCarousel() {
-    const root = $("[data-hero]");
-    const slides = $$("[data-slide]", root);
-    const dots = $$("[data-dot]", root);
-    let current = 0;
-    let timer;
-    const show = (i) => {
-      current = (i + slides.length) % slides.length;
-      slides.forEach((s, n) => {
-        const on = n === current;
-        s.classList.toggle("is-active", on);
-        s.toggleAttribute("inert", !on);
-        s.setAttribute("aria-hidden", !on);
-      });
-      dots.forEach((d, n) => {
-        d.classList.toggle("is-active", n === current);
-        if (n === current) d.setAttribute("aria-current", "true");
-        else d.removeAttribute("aria-current");
-      });
-    };
-    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const play = () => {
-      clearInterval(timer);
-      if (!still) timer = setInterval(() => show(current + 1), 7000);
-    };
-    dots.forEach((d) => d.addEventListener("click", () => {
-      show(Number(d.dataset.dot));
-      play();
-    }));
-    root.addEventListener("mouseenter", () => clearInterval(timer));
-    root.addEventListener("mouseleave", play);
-    root.addEventListener("focusin", () => clearInterval(timer));
-    play();
-  }
-
-  /* Lookbook wall: a still collage of looks in three staggered columns (desktop),
-     one swipeable row (phones). */
-  function lookWall() {
-    const look = (p) => `
-      <a class="b-look" href="${productUrl(p)}">
-        <img src="${p.image}" alt="${esc(p.name)}">
-        <span class="b-look__tag">${esc(p.name)} · ${money(p.price)}</span>
-      </a>`;
-    const cols = [0, 1, 2].map((c) => D.products.filter((_, i) => i % 3 === c));
-    $("[data-wall]").innerHTML = cols.map((list) => `<div class="b-wall__col">${list.map(look).join("")}</div>`).join("");
-    $("[data-strip]").innerHTML = D.products.map(look).join("");
-  }
-
   function renderShopIntro() {
     const covers = { sets: "assets/img/products/look-04.jpg", dresses: "assets/img/products/look-02.jpg", outerwear: "assets/img/products/look-10.jpg" };
     $("[data-cats]").innerHTML = D.categories
@@ -517,8 +469,6 @@
   }
 
   function renderHome() {
-    lookWall();
-    heroCarousel();
 
     $("[data-reviews]").innerHTML = D.reviews
       .map((r) => `
