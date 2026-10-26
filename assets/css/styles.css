@@ -676,80 +676,40 @@ ol {
   text-underline-offset: 0.2em;
 }
 
-/* ========== Hero: one still headline with photo pills set between the words ========== */
+/* ========== Hero: centred headline over three looks fanned out like photo prints ========== */
 .b-hero {
-  padding: clamp(2.5rem, 7vw, 6.5rem) var(--gutter) clamp(2.5rem, 6vw, 5.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: clamp(0.9rem, 1.6vw, 1.25rem);
+  padding: clamp(2rem, 3.5vw, 3rem) var(--gutter) clamp(2.5rem, 4vw, 3.75rem);
   background: var(--color-sand);
+  text-align: center;
+  overflow: hidden;
 }
 
 .b-hero__eyebrow {
-  font-size: clamp(0.72rem, 1vw, 0.95rem);
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--color-ink-muted);
 }
 
 .b-hero__title {
-  margin-top: clamp(1rem, 2vw, 1.75rem);
+  max-width: 16ch;
   font-family: var(--font-serif);
-  font-size: clamp(2.75rem, 8.6vw, 9.5rem);
+  font-size: clamp(2.6rem, 4.4vw, 4.6rem);
   font-weight: 400;
-  line-height: 1.08;
-  letter-spacing: -0.015em;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
   color: var(--color-ink);
 }
 
-/* A look, cropped to a pill, sitting on the text line */
-.b-pill {
-  display: inline-block;
-  width: 1.6em;
-  height: 0.78em;
-  margin-inline: 0.04em;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  vertical-align: -0.06em;
-  background: var(--color-sand-deep);
-  transition: transform var(--duration-base) var(--ease-out);
-}
-
-.b-pill--wide {
-  width: 2.3em;
-}
-
-.b-pill img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center var(--y, 25%);
-}
-
-.b-pill:hover {
-  transform: rotate(-3deg) scale(1.04);
-}
-
-.b-hero__foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: space-between;
-  gap: var(--space-6) var(--space-10);
-  margin-top: clamp(1.75rem, 3.5vw, 3rem);
-  padding-top: clamp(1.25rem, 2vw, 1.75rem);
-  border-top: var(--border-thin) solid var(--color-line);
-}
-
 .b-hero__lead {
-  max-width: 30rem;
-  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  max-width: 32rem;
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
   line-height: 1.5;
   color: var(--color-ink-muted);
-}
-
-.b-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-6);
 }
 
 .b-hero__cta {
@@ -757,6 +717,7 @@ ol {
   align-items: center;
   gap: clamp(1rem, 1.6vw, 1.5rem);
   height: clamp(3rem, 3.5vw, 3.4rem);
+  margin-top: var(--space-2);
   padding-inline: clamp(1.5rem, 2.4vw, 2.4rem);
   border-radius: var(--radius-full);
   background: var(--color-duck);
@@ -781,9 +742,82 @@ ol {
   transform: translateX(0.2rem);
 }
 
+/* Three looks as white-bordered prints, the outer two tilted out behind the middle one */
+.b-hero__fan {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(1.25rem, 2.2vw, 2rem);
+}
+
+.b-print {
+  position: relative;
+  display: block;
+  width: clamp(6.75rem, 14.5vw, 13rem);
+  padding: clamp(0.4rem, 0.6vw, 0.6rem) clamp(0.4rem, 0.6vw, 0.6rem) clamp(1.75rem, 2.5vw, 2.4rem);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-float);
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.b-print img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center 25%;
+}
+
+.b-print__caption {
+  display: block;
+  margin-top: clamp(0.35rem, 0.6vw, 0.55rem);
+  font-family: var(--font-serif);
+  font-size: clamp(0.8rem, 1.1vw, 1rem);
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.b-print:nth-child(1) {
+  transform: rotate(-7deg) translate(9%, 6%);
+}
+
+/* side captions sit away from the middle print so they aren't covered */
+.b-print:nth-child(1) .b-print__caption {
+  text-align: left;
+}
+
+.b-print:nth-child(3) .b-print__caption {
+  text-align: right;
+}
+
+.b-print:nth-child(2) {
+  z-index: 2;
+  transform: rotate(-1.5deg);
+}
+
+.b-print:nth-child(3) {
+  transform: rotate(6deg) translate(-9%, 5%);
+}
+
+.b-print:hover,
+.b-print:focus-visible {
+  z-index: 3;
+  transform: rotate(0deg) translateY(-0.6rem);
+}
+
 @media (max-width: 47.99rem) {
-  .b-hero__title br {
-    display: none;
+  .b-print__caption {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .b-print:nth-child(1) {
+    transform: rotate(-6deg) translate(4%, 5%);
+  }
+
+  .b-print:nth-child(3) {
+    transform: rotate(5deg) translate(-4%, 4%);
   }
 }
 
