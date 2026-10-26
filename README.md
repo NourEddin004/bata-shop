@@ -21,10 +21,10 @@ Then open http://127.0.0.1:5190.
 | File | What it shows |
 | --- | --- |
 | `index.html` | Centred hero with three looks fanned out like photo prints, trust strip, our story (About), how to order, reviews, Instagram strip |
-| `shop.html` | Category tiles, new this week, then the catalog with category tabs, colour filters and search (`?cat=sets&shade=plum&q=coat`) |
-| `product.html?id=…` | Gallery, required size choice, size guide, quantity, details and related pieces |
+| `shop.html` | The collection: category tabs (All, New in, Sets, Abayas & Dresses, Coats & Jackets), colour and size filters, search, and product cards with size + Add to cart (`?cat=new&shade=navy&size=XL&q=coat`) |
+| `product.html?id=…` | Gallery, size choice (sold-out sizes crossed out), size guide, quantity, Proceed to checkout, details and related pieces |
 | `cart.html` | Full bag with free-delivery progress |
-| `checkout.html` | Jordan city → area address, +962 phone, delivery by city, cash on delivery / CliQ / branch pickup, confirmation |
+| `checkout.html` | Jordan city → area address, +962 phone, delivery by city, cash on delivery / CliQ / branch pickup, confirmation with a PDF receipt download |
 | `contact.html` | Branches (Zarqa, Amman), FAQ |
 
 The bag drawer, search panel, menu and toasts are on every page. The bag and last order
@@ -32,7 +32,7 @@ live in `localStorage`. Nothing is sent anywhere.
 
 ## Editing
 
-- **Products, prices, cities, reviews, copy:** `assets/js/catalog.js`
+- **Products, prices, sizes in stock, cities, reviews, copy:** `assets/js/catalog.js` (`newInCount` sets how many pieces the New in category shows)
 - **Colours, fonts, spacing:** `assets/css/tokens.css` (the only file with raw values). Page bands use `b-tone--white/cream/sand/ink` for the 60/30/10 split
 - **Hero:** all in `index.html`; each print (`b-print`) links to a product — swap the three looks there
 - **Components:** `assets/css/styles.css` (`b-*` classes, `is-*` states)

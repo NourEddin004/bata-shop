@@ -20,6 +20,15 @@
   const catLabel = (id) => (D.categories.find((c) => c.id === id) || {}).label || "";
   const shadeLabel = (id) => (D.shades.find((s) => s.id === id) || {}).label || "";
   const productUrl = (p) => "product.html?id=" + encodeURIComponent(p.id);
+  const newIn = () => [...D.products].sort((a, b) => b.added - a.added).slice(0, D.newInCount);
+  const loadScript = (src) =>
+    new Promise((resolve, reject) => {
+      const el = document.createElement("script");
+      el.src = src;
+      el.onload = resolve;
+      el.onerror = reject;
+      document.head.append(el);
+    });
 
   const storage = {
     get(key, fallback) {
@@ -56,6 +65,7 @@
     phone: '<path d="M6.5 4h3l1.5 4-2 1.2a10 10 0 0 0 5.8 5.8L16 13l4 1.5v3A2.5 2.5 0 0 1 17.5 20 13.5 13.5 0 0 1 4 6.5 2.5 2.5 0 0 1 6.5 4z"/>',
     pin: '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    download: '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',
     user: '<circle cx="12" cy="8" r="3.8"/><path d="M4.8 20.2c.9-3.8 3.7-5.9 7.2-5.9s6.3 2.1 7.2 5.9"/>'
   };
   const icon = (name, cls = "") => `<svg class="b-icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
@@ -120,6 +130,12 @@
       else this.lines.push({ id, size, qty: Math.min(S.maxQty, qty) });
       this.save();
     },
+    set(id, size, qty) {
+      const line = this.lines.find((l) => l.id === id && l.size === size);
+      if (line) line.qty = Math.min(S.maxQty, qty);
+      else this.lines.push({ id, size, qty: Math.min(S.maxQty, qty) });
+      this.save();
+    },
     setQty(index, qty) {
       if (qty < 1) this.lines.splice(index, 1);
       else this.lines[index].qty = Math.min(S.maxQty, qty);
@@ -147,12 +163,16 @@
   /* ---------- Shared chrome ---------- */
   const NAV = [
     { href: "shop.html", label: "Shop", page: "shop", header: true },
-    { href: "shop.html#new", label: "New In", page: "new", header: true },
+    { href: "shop.html?cat=new", label: "New In", page: "new", header: true },
     { href: "index.html#story", label: "About", page: "about", header: true },
     { href: "contact.html", label: "Visit us", page: "contact" }
   ];
 
-  const isCurrent = (item) => item.page === page;
+  const isCurrent = (item) => {
+    if (page === "shop" && item.page === "new") return params.get("cat") === "new";
+    if (page === "shop" && item.page === "shop") return params.get("cat") !== "new";
+    return item.page === page;
+  };
 
   function renderChrome() {
     const header = document.createElement("div");
@@ -366,10 +386,12 @@
               <output aria-label="Quantity">${l.qty}</output>
               <button type="button" data-qty="${i}" data-step="1" aria-label="More"${l.qty >= S.maxQty ? " disabled" : ""}>+</button>
             </div>
-            <button class="b-line__remove" type="button" data-remove="${i}">Remove</button>
           </div>
         </div>
-        <span class="b-line__price">${money(p.price * l.qty)}</span>
+        <div class="b-line__end">
+          <span class="b-line__price">${money(p.price * l.qty)}</span>
+          <button class="b-line__remove" type="button" data-remove="${i}">Remove</button>
+        </div>
       </div>`;
   }
 
@@ -408,8 +430,8 @@
     foot.innerHTML = `
       <div class="b-summary__row b-summary__row--total"><span>Subtotal</span><span>${money(bag.subtotal())}</span></div>
       <p class="b-summary__note">Delivery is worked out at checkout. Pay cash when it arrives.</p>
-      <a class="b-btn b-btn--primary b-btn--block" href="checkout.html">Checkout</a>
-      <a class="b-btn b-btn--ghost b-btn--block" href="cart.html">View bag</a>`;
+      <a class="b-btn b-btn--duck b-btn--block" href="checkout.html">Checkout</a>
+      <button class="b-btn b-btn--primary b-btn--block" type="button" data-close>Continue shopping</button>`;
   }
 
   document.addEventListener("click", (e) => {
@@ -424,11 +446,25 @@
       bag.remove(Number(r.dataset.remove));
       return;
     }
-    const quick = e.target.closest("[data-quick]");
-    if (quick) {
-      e.preventDefault();
-      location.href = productUrl(byId(quick.dataset.quick)) + "#size";
+  });
+
+  document.addEventListener("submit", (e) => {
+    const form = e.target.closest("[data-card-buy]");
+    if (!form) return;
+    e.preventDefault();
+    const select = form.elements.size;
+    if (!select.value) {
+      select.classList.add("is-invalid");
+      select.focus();
+      toast("Pick a size first");
+      return;
     }
+    bag.add(form.dataset.cardBuy, select.value, 1);
+    open("bag-drawer");
+  });
+
+  document.addEventListener("change", (e) => {
+    if (e.target.matches("[data-card-buy] select")) e.target.classList.remove("is-invalid");
   });
 
   /* ---------- Product card ---------- */
@@ -438,38 +474,24 @@
         <a class="b-card__media" href="${productUrl(p)}">
           <img src="${p.image}" alt="${esc(p.name)}" loading="lazy">
           ${p.badge ? `<span class="b-badge b-card__badge${p.badge === "New" ? " b-badge--duck" : ""}">${p.badge}</span>` : ""}
-          <span class="b-btn b-card__quick" data-quick="${p.id}" role="button" tabindex="0">Choose size</span>
         </a>
         <div class="b-card__info">
-          <div>
-            <a class="b-card__name" href="${productUrl(p)}">${esc(p.name)}</a>
-          </div>
+          <a class="b-card__name" href="${productUrl(p)}">${esc(p.name)}</a>
           <span class="b-card__price">${money(p.price)}</span>
         </div>
+        <form class="b-card__buy" data-card-buy="${p.id}">
+          <label class="b-sr" for="size-${p.id}">Size for ${esc(p.name)}</label>
+          <select class="b-select b-card__size" id="size-${p.id}" name="size">
+            <option value="">Size</option>
+            ${p.sizes.map((sz) => `<option>${sz}</option>`).join("")}
+          </select>
+          <button class="b-btn b-btn--primary b-card__add" type="submit">Add to cart</button>
+        </form>
       </article>`;
   }
 
   /* ---------- Pages ---------- */
-  function renderShopIntro() {
-    const covers = { sets: "assets/img/products/look-04.jpg", dresses: "assets/img/products/look-02.jpg", outerwear: "assets/img/products/look-10.jpg" };
-    $("[data-cats]").innerHTML = D.categories
-      .filter((c) => c.id !== "all")
-      .map((c) => {
-        const n = D.products.filter((p) => p.category === c.id).length;
-        return `
-          <a class="b-cat" href="shop.html?cat=${c.id}#catalog">
-            <img src="${covers[c.id]}" alt="" loading="lazy">
-            <span class="b-cat__label"><span class="b-cat__name">${c.label}</span><span class="b-cat__count">${n} pieces</span></span>
-          </a>`;
-      })
-      .join("");
-
-    const newIn = [...D.products].sort((a, b) => b.added - a.added).slice(0, 4);
-    $("[data-new-in]").innerHTML = newIn.map(cardHtml).join("");
-  }
-
   function renderHome() {
-
     $("[data-reviews]").innerHTML = D.reviews
       .map((r) => `
         <figure class="b-review">
@@ -487,16 +509,17 @@
   }
 
   function renderShop() {
-    renderShopIntro();
     const state = {
       cat: D.categories.some((c) => c.id === params.get("cat")) ? params.get("cat") : "all",
       shade: params.get("shade") || "",
+      size: D.sizes.includes(params.get("size")) ? params.get("size") : "",
       q: params.get("q") || "",
       sort: params.get("sort") || "featured"
     };
 
     const tabs = $("[data-tabs]");
     const shades = $("[data-shades]");
+    const sizes = $("[data-size-filter]");
     const qInput = $("[data-q]");
     qInput.value = state.q;
 
@@ -504,6 +527,7 @@
       const u = new URLSearchParams();
       if (state.cat !== "all") u.set("cat", state.cat);
       if (state.shade) u.set("shade", state.shade);
+      if (state.size) u.set("size", state.size);
       if (state.q) u.set("q", state.q);
       if (state.sort !== "featured") u.set("sort", state.sort);
       history.replaceState(null, "", "shop.html" + (u.toString() ? "?" + u : ""));
@@ -522,12 +546,19 @@
         `<span class="b-toolbar__label">Colour</span>` +
         D.shades
           .map((s) => `<button class="b-shade-btn${s.id === state.shade ? " is-active" : ""}" type="button" data-shade="${s.id}" aria-pressed="${s.id === state.shade}"><span class="b-swatch" data-shade="${s.id}"></span>${s.label}</button>`)
-          .join("") +
-        (state.shade ? `<button class="b-line__remove" type="button" data-shade="">Clear</button>` : "");
+          .join("");
+      sizes.innerHTML =
+        `<span class="b-toolbar__label">Size</span>` +
+        D.sizes.map((sz) => `<button class="b-size-chip${sz === state.size ? " is-active" : ""}" type="button" data-size="${sz}" aria-pressed="${sz === state.size}">${sz}</button>`).join("");
+      $("[data-clear]").hidden = !(state.shade || state.size || state.q);
 
       let list = state.q ? search(state.q.toLowerCase()) : [...D.products];
-      if (state.cat !== "all") list = list.filter((p) => p.category === state.cat);
+      if (state.cat === "new") {
+        const fresh = newIn();
+        list = list.filter((p) => fresh.includes(p)).sort((a, b) => b.added - a.added);
+      } else if (state.cat !== "all") list = list.filter((p) => p.category === state.cat);
       if (state.shade) list = list.filter((p) => p.shade === state.shade);
+      if (state.size) list = list.filter((p) => p.sizes.includes(state.size));
       if (state.sort === "new") list.sort((a, b) => b.added - a.added);
       if (state.sort === "price-asc") list.sort((a, b) => a.price - b.price);
       if (state.sort === "price-desc") list.sort((a, b) => b.price - a.price);
@@ -535,7 +566,7 @@
       $("[data-results-count]").textContent = `${list.length} ${list.length === 1 ? "piece" : "pieces"}${state.q ? ` for “${state.q}”` : ""}`;
       $("[data-grid]").innerHTML = list.length
         ? list.map(cardHtml).join("")
-        : `<div style="grid-column:1/-1">${emptyHtml("Nothing matches yet", "Try another colour or clear your search — new pieces land every week.", "See everything")}</div>`;
+        : `<div style="grid-column:1/-1">${emptyHtml("Nothing matches yet", "Try another colour or size, or clear the filters. New pieces land every week.", "See everything")}</div>`;
     }
 
     tabs.addEventListener("click", (e) => {
@@ -552,6 +583,18 @@
         sync();
       }
     });
+    sizes.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-size]");
+      if (b) {
+        state.size = state.size === b.dataset.size ? "" : b.dataset.size;
+        sync();
+      }
+    });
+    $("[data-clear]").addEventListener("click", () => {
+      state.shade = state.size = state.q = "";
+      qInput.value = "";
+      sync();
+    });
     let t;
     qInput.addEventListener("input", () => {
       clearTimeout(t);
@@ -562,9 +605,6 @@
     });
     $("[data-q-form]").addEventListener("submit", (e) => e.preventDefault());
     draw();
-    // The grids above are drawn by script, so jump to #catalog / #new once they exist.
-    const target = location.hash && document.getElementById(location.hash.slice(1));
-    if (target) requestAnimationFrame(() => target.scrollIntoView());
   }
 
   function renderProduct() {
@@ -598,7 +638,10 @@
         <fieldset class="b-fieldset" id="size">
           <p class="b-pdp__label"><span>Size</span><button type="button" data-open="size-guide">Size guide</button></p>
           <div class="b-sizes" data-sizes>
-            ${D.sizes.map((s) => `<label class="b-size"><input type="radio" name="size" value="${s}"><span>${s}</span></label>`).join("")}
+            ${D.sizes.map((s) => {
+              const out = !p.sizes.includes(s);
+              return `<label class="b-size${out ? " is-out" : ""}"><input type="radio" name="size" value="${s}"${out ? " disabled" : ""}><span>${s}</span>${out ? '<span class="b-sr">sold out</span>' : ""}</label>`;
+            }).join("")}
           </div>
           <p class="b-field__error" data-size-error hidden>Choose a size first.</p>
         </fieldset>
@@ -608,7 +651,7 @@
             <output data-pdp-qty aria-label="Quantity">1</output>
             <button type="button" data-pdp-step="1" aria-label="More">+</button>
           </div>
-          <button class="b-btn b-btn--primary" type="submit">Add to bag · ${money(p.price)}</button>
+          <button class="b-btn b-btn--duck" type="submit">Proceed to checkout ${icon("arrow")}</button>
         </div>
         <ul class="b-pdp__perks">
           <li>${icon("truck")} Delivered in 1–2 days in Amman & Zarqa, 2–4 days elsewhere</li>
@@ -651,8 +694,8 @@
         $("#size").scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
-      bag.add(p.id, size, qty);
-      open("bag-drawer");
+      bag.set(p.id, size, qty);
+      location.href = "checkout.html";
     });
 
     const related = D.products.filter((x) => x.id !== p.id && x.category === p.category);
@@ -670,7 +713,7 @@
     root.innerHTML = `
       <div class="b-cart-page">
         <div>${progressHtml()}${items.map((l, i) => lineHtml(l, i, "md")).join("")}</div>
-        ${summaryHtml(null, `<a class="b-btn b-btn--primary b-btn--block" href="checkout.html">Checkout</a><a class="b-text-link" href="shop.html" style="justify-self:center">Keep shopping</a>`)}
+        ${summaryHtml(null, `<a class="b-btn b-btn--duck b-btn--block" href="checkout.html">Checkout</a><a class="b-btn b-btn--primary b-btn--block" href="shop.html">Continue shopping</a>`)}
       </div>`;
   }
 
@@ -786,7 +829,10 @@
       const fee = pickup ? 0 : deliveryFee(city.value);
       const order = {
         number: "BATA-" + Math.floor(100000 + Math.random() * 900000),
+        date: new Date().toISOString(),
         name: form.elements.name.value.trim(),
+        phone: "+962 " + form.elements.phone.value.trim(),
+        address: pickup ? "" : [form.elements.street.value.trim(), form.elements.area.value, D.cities.find((c) => c.id === city.value).label].join(", "),
         city: pickup ? "Branch pickup" : D.cities.find((c) => c.id === city.value).label,
         items: bag.items().map((l) => ({ name: l.product.name, size: l.size, qty: l.qty, price: l.product.price, image: l.product.image })),
         subtotal: bag.subtotal(),
@@ -823,8 +869,70 @@
           <div class="b-summary__row"><span>Delivery · ${esc(o.city)}</span><span>${o.fee ? money(o.fee) : "Free"}</span></div>
           <div class="b-summary__row b-summary__row--total"><span>Total</span><span>${money(o.subtotal + (o.fee || 0))}</span></div>
         </aside>
-        <a class="b-btn b-btn--primary" href="shop.html">Keep shopping</a>
+        <div class="b-confirm__actions">
+          <button class="b-btn b-btn--duck" type="button" data-receipt>${icon("download")} Download receipt</button>
+          <a class="b-btn b-btn--primary" href="shop.html">Continue shopping</a>
+        </div>
       </div>`;
+    $("[data-receipt]").addEventListener("click", () => downloadReceipt(o));
+  }
+
+  const PAY_LABELS = { cod: "Cash on delivery", cliq: "CliQ transfer", pickup: "Pay at the branch" };
+
+  /* A one-page PDF receipt named after the order number. Falls back to a text file if the PDF library can't load. */
+  async function downloadReceipt(o) {
+    const date = new Date(o.date || Date.now()).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    const total = o.subtotal + (o.fee || 0);
+    try {
+      if (!window.jspdf) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+      const doc = new window.jspdf.jsPDF({ unit: "mm", format: "a5" });
+      const W = doc.internal.pageSize.getWidth();
+      const M = 12;
+      let y = 16;
+      doc.setFont("times", "bold").setFontSize(20).text("BATA SHOP", M, y);
+      doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(110).text("Receipt", W - M, y, { align: "right" });
+      y += 9;
+      doc.setDrawColor(247, 197, 43).setLineWidth(0.8).line(M, y, W - M, y);
+      y += 8;
+      doc.setTextColor(27).setFontSize(10);
+      [["Order number", o.number], ["Date", date], ["Customer", o.name], ["Phone", o.phone || ""], ["Delivery", o.address ? o.address : o.city], ["Payment", PAY_LABELS[o.pay] || ""]].forEach(([k, v]) => {
+        doc.setTextColor(110).text(k, M, y);
+        doc.setTextColor(27).text(String(v), M + 32, y, { maxWidth: W - M * 2 - 32 });
+        y += 6.5;
+      });
+      y += 3;
+      doc.setDrawColor(220).setLineWidth(0.2).line(M, y, W - M, y);
+      y += 6;
+      doc.setFontSize(8.5).setTextColor(110).text("ITEM", M, y).text("QTY", W - M - 30, y, { align: "right" }).text("PRICE", W - M, y, { align: "right" });
+      y += 6;
+      doc.setFontSize(10).setTextColor(27);
+      o.items.forEach((l) => {
+        doc.text(`${l.name} · Size ${l.size}`, M, y, { maxWidth: W - M * 2 - 40 });
+        doc.text(String(l.qty), W - M - 30, y, { align: "right" });
+        doc.text(money(l.price * l.qty), W - M, y, { align: "right" });
+        y += 7;
+      });
+      y += 1;
+      doc.setDrawColor(220).line(M, y, W - M, y);
+      y += 7;
+      [["Subtotal", money(o.subtotal)], ["Delivery", o.fee ? money(o.fee) : "Free"]].forEach(([k, v]) => {
+        doc.setTextColor(110).text(k, W - M - 40, y);
+        doc.setTextColor(27).text(v, W - M, y, { align: "right" });
+        y += 6;
+      });
+      doc.setFont("helvetica", "bold").setFontSize(12).text("Total", W - M - 40, y + 1).text(money(total), W - M, y + 1, { align: "right" });
+      doc.setFont("helvetica", "normal").setFontSize(8.5).setTextColor(110);
+      doc.text("Keep this receipt and your order number for any question about your order.", M, 190, { maxWidth: W - M * 2 });
+      doc.text(`${S.name} · Zarqa & Amman · @bata_shop1`, M, 198);
+      doc.save(`receipt-${o.number}.pdf`);
+    } catch (err) {
+      console.warn("PDF receipt failed, saving a text receipt instead", err);
+      const lines = [`BATA SHOP — Receipt`, `Order: ${o.number}`, `Date: ${date}`, `Customer: ${o.name} ${o.phone || ""}`, `Delivery: ${o.address || o.city}`, `Payment: ${PAY_LABELS[o.pay] || ""}`, "", ...o.items.map((l) => `${l.qty} × ${l.name} (Size ${l.size}) — ${money(l.price * l.qty)}`), "", `Subtotal: ${money(o.subtotal)}`, `Delivery: ${o.fee ? money(o.fee) : "Free"}`, `Total: ${money(total)}`];
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/plain" }));
+      a.download = `receipt-${o.number}.txt`;
+      a.click();
+    }
   }
 
 

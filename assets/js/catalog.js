@@ -24,6 +24,7 @@ window.BATA = {
 
   categories: [
     { id: "all", label: "All" },
+    { id: "new", label: "New in" },
     { id: "sets", label: "Sets" },
     { id: "dresses", label: "Abayas & Dresses" },
     { id: "outerwear", label: "Coats & Jackets" }
@@ -38,7 +39,8 @@ window.BATA = {
     { id: "taupe", label: "Taupe" }
   ],
 
-  sizes: ["S", "M", "L", "XL", "XXL"],
+  sizes: ["S", "M", "L", "XL", "XXL"], // every size we make; each product lists the ones in stock
+  newInCount: 4, // the "New in" category shows this many of the most recently added pieces
 
   sortOptions: [
     { id: "featured", label: "Featured" },
@@ -55,6 +57,7 @@ window.BATA = {
       category: "outerwear",
       shade: "beige",
       price: 48,
+      sizes: ["S", "M", "L", "XL", "XXL"],
       badge: "New",
       added: 12,
       image: "assets/img/products/look-10.jpg",
@@ -68,6 +71,7 @@ window.BATA = {
       category: "sets",
       shade: "plum",
       price: 49,
+      sizes: ["S", "M", "L", "XL"],
       badge: "Bestseller",
       added: 9,
       image: "assets/img/products/look-04.jpg",
@@ -81,6 +85,7 @@ window.BATA = {
       category: "outerwear",
       shade: "black",
       price: 52,
+      sizes: ["M", "L", "XL", "XXL"],
       badge: "New",
       added: 11,
       image: "assets/img/products/look-09.jpg",
@@ -94,6 +99,7 @@ window.BATA = {
       category: "dresses",
       shade: "beige",
       price: 38,
+      sizes: ["S", "M", "L", "XL", "XXL"],
       added: 6,
       image: "assets/img/products/look-02.jpg",
       description: "A clean ivory abaya with flared bell sleeves and a soft front slit. Simple enough for every day, with a shape that moves.",
@@ -106,6 +112,7 @@ window.BATA = {
       category: "sets",
       shade: "plum",
       price: 55,
+      sizes: ["S", "M", "L"],
       badge: "Limited",
       added: 10,
       image: "assets/img/products/look-03.jpg",
@@ -119,6 +126,7 @@ window.BATA = {
       category: "sets",
       shade: "navy",
       price: 45,
+      sizes: ["S", "M", "L", "XL"],
       added: 8,
       image: "assets/img/products/look-08.jpg",
       description: "A fitted denim jacket with a long A-line skirt in deep indigo. Soft-wash denim that keeps its colour.",
@@ -131,6 +139,7 @@ window.BATA = {
       category: "dresses",
       shade: "navy",
       price: 34,
+      sizes: ["M", "L", "XL", "XXL"],
       added: 5,
       image: "assets/img/products/look-05.jpg",
       description: "A long, straight denim dress in midnight blue. Easy to wear on its own or under a coat as the weather turns.",
@@ -143,6 +152,7 @@ window.BATA = {
       category: "sets",
       shade: "taupe",
       price: 40,
+      sizes: ["S", "M", "L", "XL", "XXL"],
       added: 7,
       image: "assets/img/products/look-12.jpg",
       description: "A relaxed corduroy shirt-jacket with matching wide trousers. Warm, soft and made for winter weekends.",
@@ -155,6 +165,7 @@ window.BATA = {
       category: "outerwear",
       shade: "brown",
       price: 36,
+      sizes: ["S", "M", "L"],
       added: 4,
       image: "assets/img/products/look-11.jpg",
       description: "A short, structured jacket in rich chocolate brown with tonal buttons. Pairs with every skirt and trouser in the shop.",
@@ -167,6 +178,7 @@ window.BATA = {
       category: "outerwear",
       shade: "navy",
       price: 32,
+      sizes: ["M", "L", "XL"],
       added: 3,
       image: "assets/img/products/look-06.jpg",
       description: "A soft navy corduroy jacket with a small embroidered motif. The everyday layer of the winter collection.",
