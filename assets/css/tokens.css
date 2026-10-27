@@ -47,6 +47,7 @@
   /* ---------- Color: status ---------- */
   --color-success: #2f6b45;
   --color-danger: #a33a2c;
+  --color-danger-wash: rgb(163 58 44 / 0.08);
 
   /* ---------- Color: shade swatches ---------- */
   --color-shade-beige: #cdb796;

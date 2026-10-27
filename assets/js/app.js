@@ -66,6 +66,7 @@
     pin: '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     download: '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',
+    trash: '<path d="M4.5 7h15M9.5 7V5h5v2M6.5 7l1 12.5h9l1-12.5M10 10.5v6M14 10.5v6"/>',
     lock: '<rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
     user: '<circle cx="12" cy="8" r="3.8"/><path d="M4.8 20.2c.9-3.8 3.7-5.9 7.2-5.9s6.3 2.1 7.2 5.9"/>'
   };
@@ -398,27 +399,31 @@
       </select>`;
   }
 
+  /* One piece in the bag: name and price on top, size chips, then quantity and Remove on one row */
   function lineHtml(l, size = "") {
     const p = l.product;
     const i = l.index;
     return `
       <div class="b-line">
         <a class="b-line__media" href="${productUrl(p)}"><img src="${p.image}" alt="${esc(p.name)}"></a>
-        <div class="b-line__info">
-          <a class="b-line__name" href="${productUrl(p)}">${esc(p.name)}</a>
+        <div class="b-line__body">
+          <div class="b-line__top">
+            <a class="b-line__name" href="${productUrl(p)}">${esc(p.name)}</a>
+            <span class="b-line__price">${money(p.price * l.qty)}</span>
+          </div>
           <span class="b-line__meta">${shadeLabel(p.shade)}</span>
-          ${sizeSelect(l)}
-          <div class="b-line__actions">
+          <div class="b-line__sizes${l.size ? "" : " is-missing"}" role="group" aria-label="Size for ${esc(p.name)}">
+            ${p.sizes.map((sz) => `<button class="b-line__chip${sz === l.size ? " is-active" : ""}" type="button" data-line-size="${i}" data-size="${sz}" aria-pressed="${sz === l.size}">${sz}</button>`).join("")}
+          </div>
+          ${l.size ? "" : `<span class="b-line__hint">Select a size</span>`}
+          <div class="b-line__bottom">
             <div class="b-stepper b-stepper--${size || "sm"}">
               <button type="button" data-qty="${i}" data-step="-1" aria-label="Fewer">−</button>
               <output aria-label="Quantity">${l.qty}</output>
               <button type="button" data-qty="${i}" data-step="1" aria-label="More"${l.qty >= S.maxQty ? " disabled" : ""}>+</button>
             </div>
+            <button class="b-line__remove" type="button" data-remove="${i}">${icon("trash")} Remove</button>
           </div>
-        </div>
-        <div class="b-line__end">
-          <span class="b-line__price">${money(p.price * l.qty)}</span>
-          <button class="b-line__remove" type="button" data-remove="${i}">Remove</button>
         </div>
       </div>`;
   }
@@ -493,8 +498,13 @@
     open("bag-drawer");
   });
 
+  document.addEventListener("click", (e) => {
+    const chip = e.target.closest("button[data-line-size]");
+    if (chip) bag.setSize(Number(chip.dataset.lineSize), chip.dataset.size);
+  });
+
   document.addEventListener("change", (e) => {
-    const sel = e.target.closest("[data-line-size]");
+    const sel = e.target.closest("select[data-line-size]");
     if (sel) bag.setSize(Number(sel.dataset.lineSize), sel.value);
   });
 
